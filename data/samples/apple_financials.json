@@ -1,0 +1,61 @@
+{
+  "ticker": "AAPL",
+  "nome": "Apple Inc.",
+  "settore": "Technology",
+  "industria": "Consumer Electronics",
+  "paese": "US",
+  "valuta": "USD",
+  "market_cap": 2800000000000,
+  "enterprise_value": 2850000000000,
+  "shares_outstanding": 15500000000,
+  "prezzo_corrente": 180.65,
+  "dati_finanziari": {
+    "2024": {
+      "ricavi": 383000000000,
+      "ebit": 120000000000,
+      "ebitda": 133000000000,
+      "utile_netto": 97000000000,
+      "total_debt": 111000000000,
+      "cash": 62000000000,
+      "capex": 11000000000,
+      "deprezzamento": 13000000000,
+      "delta_working_capital": -3000000000,
+      "tax_rate": 0.153,
+      "dividendo_per_azione": 0.96
+    },
+    "2023": {
+      "ricavi": 383300000000,
+      "ebit": 114300000000,
+      "ebitda": 125800000000,
+      "utile_netto": 96990000000,
+      "total_debt": 111000000000,
+      "cash": 29970000000,
+      "capex": 11000000000,
+      "deprezzamento": 11500000000,
+      "delta_working_capital": 2500000000,
+      "tax_rate": 0.148
+    },
+    "2022": {
+      "ricavi": 394330000000,
+      "ebit": 119440000000,
+      "ebitda": 130540000000,
+      "utile_netto": 99800000000,
+      "total_debt": 120100000000,
+      "cash": 23650000000,
+      "capex": 10710000000,
+      "deprezzamento": 11100000000,
+      "delta_working_capital": -6300000000,
+      "tax_rate": 0.162
+    }
+  },
+  "beta": 1.24,
+  "ratios": {
+    "pe": 29.0,
+    "ev_ebitda": 21.4,
+    "pb": 47.0,
+    "ps": 7.3,
+    "roe": 1.60,
+    "margine_operativo": 0.313,
+    "crescita_ricavi_5y": 0.08
+  }
+}

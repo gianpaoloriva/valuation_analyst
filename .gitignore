@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment e segreti
+.env
+
+# Dati scaricati (cache Damodaran)
+data/cache/*.xlsx
+data/cache/*.xls
+data/cache/*.csv
+!data/cache/.gitkeep
+
+# Report generati
+data/reports/*.md
+data/reports/*.html
+data/reports/*.pdf
+!data/reports/.gitkeep
+
+# Log operativi
+data/logs/*.log
+!data/logs/.gitkeep
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+
+# mypy
+.mypy_cache/
+
+# pytest
+.pytest_cache/
+
+# OS
+.DS_Store
+Thumbs.db
