@@ -32,7 +32,7 @@ Segui il flusso definito nell'orchestrator:
 
 ### 3. Generazione Report
 Usa il template in `templates/report_template.md` per generare il report.
-Salva in `data/reports/{ticker}_{data}_valuation.md`.
+Salva in `report/{ticker}_{data}_valuation.md`.
 
 ### 4. Logging
 Logga ogni fase in prompt_log.md.

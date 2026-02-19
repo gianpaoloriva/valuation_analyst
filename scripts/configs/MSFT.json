@@ -1,0 +1,99 @@
+{
+  "ticker": "MSFT",
+  "erp": 0.055,
+  "rating_credito": "AAA",
+  "crescita_alta": 0.12,
+  "crescita_stabile": 0.025,
+  "anni_alta": 5,
+  "anni_transizione": 5,
+
+  "comparabili": [
+    {
+      "ticker": "AAPL", "nome": "Apple Inc.", "settore": "Technology",
+      "market_cap": 3450000, "pe_ratio": 33.5, "ev_ebitda": 26.8,
+      "pb_ratio": 62.0, "ev_sales": 9.0, "ev_ebit": 31.5,
+      "margine_operativo": 0.34, "crescita_ricavi": 0.05, "paese": "US"
+    },
+    {
+      "ticker": "GOOGL", "nome": "Alphabet Inc.", "settore": "Technology",
+      "market_cap": 2150000, "pe_ratio": 24.0, "ev_ebitda": 17.5,
+      "pb_ratio": 7.8, "ev_sales": 7.2, "ev_ebit": 22.0,
+      "margine_operativo": 0.32, "crescita_ricavi": 0.14, "paese": "US"
+    },
+    {
+      "ticker": "AMZN", "nome": "Amazon.com Inc.", "settore": "Technology",
+      "market_cap": 2300000, "pe_ratio": 42.0, "ev_ebitda": 18.5,
+      "pb_ratio": 9.5, "ev_sales": 4.0, "ev_ebit": 35.0,
+      "margine_operativo": 0.11, "crescita_ricavi": 0.12, "paese": "US"
+    },
+    {
+      "ticker": "META", "nome": "Meta Platforms Inc.", "settore": "Technology",
+      "market_cap": 1600000, "pe_ratio": 27.5, "ev_ebitda": 16.0,
+      "pb_ratio": 9.0, "ev_sales": 11.5, "ev_ebit": 19.5,
+      "margine_operativo": 0.41, "crescita_ricavi": 0.22, "paese": "US"
+    },
+    {
+      "ticker": "NVDA", "nome": "NVIDIA Corporation", "settore": "Technology",
+      "market_cap": 3200000, "pe_ratio": 55.0, "ev_ebitda": 45.0,
+      "pb_ratio": 52.0, "ev_sales": 38.0, "ev_ebit": 48.0,
+      "margine_operativo": 0.65, "crescita_ricavi": 0.122, "paese": "US"
+    },
+    {
+      "ticker": "ORCL", "nome": "Oracle Corporation", "settore": "Technology",
+      "market_cap": 480000, "pe_ratio": 38.0, "ev_ebitda": 22.0,
+      "pb_ratio": 28.0, "ev_sales": 9.5, "ev_ebit": 26.0,
+      "margine_operativo": 0.30, "crescita_ricavi": 0.09, "paese": "US"
+    },
+    {
+      "ticker": "CRM", "nome": "Salesforce Inc.", "settore": "Technology",
+      "market_cap": 310000, "pe_ratio": 48.0, "ev_ebitda": 26.0,
+      "pb_ratio": 4.8, "ev_sales": 9.2, "ev_ebit": 32.0,
+      "margine_operativo": 0.22, "crescita_ricavi": 0.11, "paese": "US"
+    }
+  ],
+
+  "sensitivity": {
+    "wacc_range": [0.07, 0.08, 0.085, 0.09, 0.095, 0.10, 0.11],
+    "growth_range": [0.015, 0.020, 0.025, 0.030, 0.035],
+    "crescita_range": [0.05, 0.08, 0.10, 0.12, 0.15],
+    "margine_range": [0.35, 0.40, 0.45, 0.50, 0.55]
+  },
+
+  "scenari": {
+    "upside_pct": 0.30,
+    "downside_pct": 0.25,
+    "prob_best": 0.20,
+    "prob_base": 0.55,
+    "prob_worst": 0.25,
+    "desc_best": "crescita AI/Cloud superiore, margini in espansione (+30%)",
+    "desc_base": "continuazione trend attuale",
+    "desc_worst": "rallentamento macro, pressione competitiva (-25%)"
+  },
+
+  "monte_carlo": {
+    "wacc_std": 0.01,
+    "crescita_alta_std": 0.03
+  },
+
+  "rischi_rialzo": [
+    "Accelerazione della crescita AI (Copilot, Azure OpenAI)",
+    "Espansione dei margini da economie di scala nel cloud",
+    "Successo nell'integrazione di Activision Blizzard",
+    "Aumento della quota di mercato nel cloud vs AWS/GCP"
+  ],
+  "rischi_ribasso": [
+    "Rallentamento della spesa IT enterprise",
+    "Pressione competitiva nel cloud (AWS, GCP)",
+    "Rischi regolatori (antitrust, privacy)",
+    "Compressione dei multipli del settore Technology",
+    "CapEx elevato per infrastruttura AI senza ritorno proporzionale"
+  ],
+
+  "fondamentali_fallback": {
+    "ricavi": 261802.0, "ebit": 118548.0, "ebitda": 135248.0,
+    "utile_netto": 97168.0, "total_debt": 59028.0,
+    "cash": 80036.0, "book_value_equity": 268477.0,
+    "capex": 44477.0, "deprezzamento": 16700.0, "delta_wc": 3200.0,
+    "tax_rate": 0.18, "beta_levered": 0.95
+  }
+}

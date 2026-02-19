@@ -23,7 +23,7 @@ DATA_DIR: Path = ROOT_DIR / "data"
 CACHE_DIR: Path = DATA_DIR / "cache"
 """Percorso della directory per i file di cache (dati Damodaran, API, ecc.)."""
 
-REPORTS_DIR: Path = DATA_DIR / "reports"
+REPORTS_DIR: Path = ROOT_DIR / "report"
 """Percorso della directory dove vengono salvati i report di valutazione."""
 
 LOGS_DIR: Path = DATA_DIR / "logs"

@@ -11,6 +11,7 @@ Endpoint utilizzati (API Massive.com):
 """
 from __future__ import annotations
 
+import json
 import logging
 import os
 import sys
@@ -102,26 +103,17 @@ def _fetch_fondamentali(
     return {"income": inc, "balance": bal, "cashflow": cf}
 
 
-# ---------------------------------------------------------------------------
-# Dati fondamentali di fallback (ultimi bilanci annuali pubblici)
-# Usati quando il piano API non include gli endpoint /stocks/financials/*
-# ---------------------------------------------------------------------------
-_FALLBACK: dict[str, dict[str, Any]] = {
-    "GOOGL": {
-        "ricavi": 350_018.0, "ebit": 112_387.0, "ebitda": 130_643.0,
-        "utile_netto": 100_681.0, "total_debt": 28_504.0,
-        "cash": 93_228.0, "book_value_equity": 325_082.0,
-        "capex": 52_549.0, "deprezzamento": 18_256.0, "delta_wc": 2_500.0,
-        "tax_rate": 0.14, "beta_levered": 1.05,
-    },
-    "MSFT": {
-        "ricavi": 261_802.0, "ebit": 118_548.0, "ebitda": 135_248.0,
-        "utile_netto": 97_168.0, "total_debt": 59_028.0,
-        "cash": 80_036.0, "book_value_equity": 268_477.0,
-        "capex": 44_477.0, "deprezzamento": 16_700.0, "delta_wc": 3_200.0,
-        "tax_rate": 0.18, "beta_levered": 0.95,
-    },
-}
+def _carica_fallback(ticker: str) -> dict[str, Any] | None:
+    """Carica i fondamentali di fallback da scripts/configs/{TICKER}.json.
+
+    Restituisce None se il file non esiste o non contiene fondamentali_fallback.
+    """
+    config_path = ROOT / "scripts" / "configs" / f"{ticker.upper()}.json"
+    if not config_path.exists():
+        return None
+    with open(config_path, encoding="utf-8") as f:
+        config = json.load(f)
+    return config.get("fondamentali_fallback")
 
 
 def fetch_dati_azienda(ticker: str) -> dict[str, Any]:
@@ -222,13 +214,14 @@ def fetch_dati_azienda(ticker: str) -> dict[str, Any]:
         beta_levered = 1.0  # Non disponibile nei fondamentali, da sovrascrivere nello script
 
     else:
-        # --- Fallback: dati fondamentali statici ---
-        fb = _FALLBACK.get(ticker.upper())
+        # --- Fallback: dati fondamentali da config JSON ---
+        fb = _carica_fallback(ticker)
         if fb is None:
             raise ValueError(
                 f"Fondamentali non disponibili dall'API per '{ticker}' "
                 f"e nessun dato di fallback configurato. "
-                f"Per usare questo ticker, aggiungi i dati in _FALLBACK "
+                f"Per usare questo ticker, aggiungi 'fondamentali_fallback' "
+                f"in scripts/configs/{ticker.upper()}.json "
                 f"o aggiorna il piano API Massive.com."
             )
         print(f"  Fondamentali: FALLBACK (piano API non include /stocks/financials/*)")

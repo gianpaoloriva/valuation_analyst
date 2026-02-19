@@ -1,0 +1,101 @@
+{
+  "ticker": "GOOGL",
+  "erp": 0.055,
+  "rating_credito": "AA+",
+  "crescita_alta": 0.14,
+  "crescita_stabile": 0.025,
+  "anni_alta": 5,
+  "anni_transizione": 5,
+
+  "comparabili": [
+    {
+      "ticker": "MSFT", "nome": "Microsoft Corporation", "settore": "Technology",
+      "market_cap": 3083000, "pe_ratio": 31.7, "ev_ebitda": 22.7,
+      "pb_ratio": 11.5, "ev_sales": 11.7, "ev_ebit": 26.0,
+      "margine_operativo": 0.45, "crescita_ricavi": 0.16, "paese": "US"
+    },
+    {
+      "ticker": "META", "nome": "Meta Platforms Inc.", "settore": "Technology",
+      "market_cap": 1600000, "pe_ratio": 27.5, "ev_ebitda": 16.0,
+      "pb_ratio": 9.0, "ev_sales": 11.5, "ev_ebit": 19.5,
+      "margine_operativo": 0.41, "crescita_ricavi": 0.22, "paese": "US"
+    },
+    {
+      "ticker": "AMZN", "nome": "Amazon.com Inc.", "settore": "Technology",
+      "market_cap": 2300000, "pe_ratio": 42.0, "ev_ebitda": 18.5,
+      "pb_ratio": 9.5, "ev_sales": 4.0, "ev_ebit": 35.0,
+      "margine_operativo": 0.11, "crescita_ricavi": 0.12, "paese": "US"
+    },
+    {
+      "ticker": "AAPL", "nome": "Apple Inc.", "settore": "Technology",
+      "market_cap": 3450000, "pe_ratio": 33.5, "ev_ebitda": 26.8,
+      "pb_ratio": 62.0, "ev_sales": 9.0, "ev_ebit": 31.5,
+      "margine_operativo": 0.34, "crescita_ricavi": 0.05, "paese": "US"
+    },
+    {
+      "ticker": "SNAP", "nome": "Snap Inc.", "settore": "Technology",
+      "market_cap": 25000, "pe_ratio": null, "ev_ebitda": 85.0,
+      "pb_ratio": 12.0, "ev_sales": 4.5, "ev_ebit": null,
+      "margine_operativo": -0.02, "crescita_ricavi": 0.16, "paese": "US"
+    },
+    {
+      "ticker": "TTD", "nome": "The Trade Desk Inc.", "settore": "Technology",
+      "market_cap": 55000, "pe_ratio": 140.0, "ev_ebitda": 75.0,
+      "pb_ratio": 35.0, "ev_sales": 26.0, "ev_ebit": 80.0,
+      "margine_operativo": 0.22, "crescita_ricavi": 0.26, "paese": "US"
+    },
+    {
+      "ticker": "BIDU", "nome": "Baidu Inc.", "settore": "Technology",
+      "market_cap": 38000, "pe_ratio": 11.0, "ev_ebitda": 5.5,
+      "pb_ratio": 0.9, "ev_sales": 2.0, "ev_ebit": 8.0,
+      "margine_operativo": 0.18, "crescita_ricavi": 0.01, "paese": "CN"
+    }
+  ],
+
+  "sensitivity": {
+    "wacc_range": [0.08, 0.09, 0.095, 0.10, 0.105, 0.11, 0.12],
+    "growth_range": [0.015, 0.020, 0.025, 0.030, 0.035],
+    "crescita_range": [0.05, 0.08, 0.10, 0.14, 0.18],
+    "margine_range": [0.25, 0.30, 0.32, 0.35, 0.40]
+  },
+
+  "scenari": {
+    "upside_pct": 0.35,
+    "downside_pct": 0.30,
+    "prob_best": 0.25,
+    "prob_base": 0.50,
+    "prob_worst": 0.25,
+    "desc_best": "accelerazione AI (Gemini), crescita Cloud > 30%, margini in espansione (+35%)",
+    "desc_base": "continuazione trend attuale, crescita ricavi ~14%",
+    "desc_worst": "rallentamento ads, perdita quote ricerca, pressione regolatoria (-30%)"
+  },
+
+  "monte_carlo": {
+    "wacc_std": 0.012,
+    "crescita_alta_std": 0.04
+  },
+
+  "rischi_rialzo": [
+    "Accelerazione dell'adozione di Gemini e AI products",
+    "Google Cloud supera il 15% di quota mercato cloud globale",
+    "YouTube diventa piattaforma dominante per streaming/TV",
+    "Miglioramento dei margini operativi tramite efficienza AI interna",
+    "Buyback aggressivi che riducono le azioni in circolazione"
+  ],
+  "rischi_ribasso": [
+    "Perdita di quote nel mercato della ricerca (AI competitors)",
+    "Pressione regolatoria antitrust (DOJ, UE)",
+    "Rallentamento del mercato pubblicitario digitale",
+    "CapEx AI superiore alle attese senza ritorni proporzionali",
+    "Competizione nel cloud da AWS e Azure",
+    "Rischio di disruption tecnologica nel core business Search"
+  ],
+
+  "fondamentali_fallback": {
+    "ricavi": 350018.0, "ebit": 112387.0, "ebitda": 130643.0,
+    "utile_netto": 100681.0, "total_debt": 28504.0,
+    "cash": 93228.0, "book_value_equity": 325082.0,
+    "capex": 52549.0, "deprezzamento": 18256.0, "delta_wc": 2500.0,
+    "tax_rate": 0.14, "beta_levered": 1.05
+  }
+}

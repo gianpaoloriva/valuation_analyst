@@ -1,0 +1,95 @@
+{
+  "ticker": "AAPL",
+  "erp": 0.055,
+  "rating_credito": "AA+",
+  "crescita_alta": 0.08,
+  "crescita_stabile": 0.025,
+  "anni_alta": 5,
+  "anni_transizione": 5,
+
+  "comparabili": [
+    {
+      "ticker": "MSFT", "nome": "Microsoft Corporation", "settore": "Technology",
+      "market_cap": 3083000, "pe_ratio": 31.7, "ev_ebitda": 22.7,
+      "pb_ratio": 11.5, "ev_sales": 11.7, "ev_ebit": 26.0,
+      "margine_operativo": 0.45, "crescita_ricavi": 0.16, "paese": "US"
+    },
+    {
+      "ticker": "GOOGL", "nome": "Alphabet Inc.", "settore": "Technology",
+      "market_cap": 2150000, "pe_ratio": 24.0, "ev_ebitda": 17.5,
+      "pb_ratio": 7.8, "ev_sales": 7.2, "ev_ebit": 22.0,
+      "margine_operativo": 0.32, "crescita_ricavi": 0.14, "paese": "US"
+    },
+    {
+      "ticker": "AMZN", "nome": "Amazon.com Inc.", "settore": "Technology",
+      "market_cap": 2300000, "pe_ratio": 42.0, "ev_ebitda": 18.5,
+      "pb_ratio": 9.5, "ev_sales": 4.0, "ev_ebit": 35.0,
+      "margine_operativo": 0.11, "crescita_ricavi": 0.12, "paese": "US"
+    },
+    {
+      "ticker": "META", "nome": "Meta Platforms Inc.", "settore": "Technology",
+      "market_cap": 1600000, "pe_ratio": 27.5, "ev_ebitda": 16.0,
+      "pb_ratio": 9.0, "ev_sales": 11.5, "ev_ebit": 19.5,
+      "margine_operativo": 0.41, "crescita_ricavi": 0.22, "paese": "US"
+    },
+    {
+      "ticker": "SAMSUNG", "nome": "Samsung Electronics", "settore": "Technology",
+      "market_cap": 350000, "pe_ratio": 15.0, "ev_ebitda": 5.5,
+      "pb_ratio": 1.3, "ev_sales": 1.5, "ev_ebit": 12.0,
+      "margine_operativo": 0.12, "crescita_ricavi": 0.08, "paese": "KR"
+    },
+    {
+      "ticker": "SONY", "nome": "Sony Group Corporation", "settore": "Technology",
+      "market_cap": 130000, "pe_ratio": 18.0, "ev_ebitda": 9.5,
+      "pb_ratio": 2.8, "ev_sales": 1.5, "ev_ebit": 16.0,
+      "margine_operativo": 0.12, "crescita_ricavi": 0.06, "paese": "JP"
+    }
+  ],
+
+  "sensitivity": {
+    "wacc_range": [0.07, 0.08, 0.085, 0.09, 0.095, 0.10, 0.11],
+    "growth_range": [0.015, 0.020, 0.025, 0.030, 0.035],
+    "crescita_range": [0.03, 0.05, 0.08, 0.10, 0.12],
+    "margine_range": [0.28, 0.30, 0.33, 0.35, 0.38]
+  },
+
+  "scenari": {
+    "upside_pct": 0.25,
+    "downside_pct": 0.20,
+    "prob_best": 0.20,
+    "prob_base": 0.55,
+    "prob_worst": 0.25,
+    "desc_best": "successo Apple Intelligence, ciclo iPhone forte, espansione Services (+25%)",
+    "desc_base": "crescita moderata trainata da Services e wearables, iPhone stabile",
+    "desc_worst": "saturazione iPhone, rallentamento Cina, pressione regolamentare (-20%)"
+  },
+
+  "monte_carlo": {
+    "wacc_std": 0.01,
+    "crescita_alta_std": 0.03
+  },
+
+  "rischi_rialzo": [
+    "Apple Intelligence genera un super-ciclo di aggiornamento iPhone",
+    "Services raggiunge margini superiori al 75% e accelera la crescita",
+    "Ingresso nel mercato AR/VR con Vision Pro di seconda generazione",
+    "Espansione significativa in India e mercati emergenti",
+    "Buyback aggressivi continuano a ridurre le azioni in circolazione"
+  ],
+  "rischi_ribasso": [
+    "Saturazione del mercato smartphone nei mercati sviluppati",
+    "Rallentamento della domanda in Cina (concorrenza Huawei)",
+    "Pressione regolatoria su App Store (DMA in Europa, antitrust US)",
+    "Margini hardware in compressione per costi componenti",
+    "Ritardo nell'adozione AI rispetto a Google e Microsoft",
+    "Dipendenza eccessiva da iPhone (~50% dei ricavi)"
+  ],
+
+  "fondamentali_fallback": {
+    "ricavi": 391035.0, "ebit": 123216.0, "ebitda": 134661.0,
+    "utile_netto": 93736.0, "total_debt": 96802.0,
+    "cash": 65171.0, "book_value_equity": 56950.0,
+    "capex": 9959.0, "deprezzamento": 11445.0, "delta_wc": 4100.0,
+    "tax_rate": 0.162, "beta_levered": 1.24
+  }
+}

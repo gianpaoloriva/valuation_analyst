@@ -66,8 +66,6 @@
 | Costo Debito Post-Tax | 4.21%     |
 | **WACC**              | **9.78%** |
 
-> **Nota:** Alphabet ha una posizione di cassa netta di $64.72B (cassa > debito). Il peso del debito nella struttura del capitale e' minimo (0.77%), rendendo il WACC molto vicino al costo dell'equity.
-
 ## 3. Valutazione DCF (FCFF)
 
 ### 3.1 FCFF Base
@@ -82,8 +80,6 @@
 | - CapEx         | 52,549.00      |
 | - Delta WC      | 2,500.00       |
 | **FCFF Base**   | **59,859.82**  |
-
-> **Nota:** Il CapEx di Alphabet ($52.55B) e' molto elevato rispetto ai ricavi (15.0%), riflettendo gli ingenti investimenti in data center e infrastruttura AI. Questo deprime il FCFF attuale ma dovrebbe generare ritorni futuri.
 
 ### 3.2 Proiezione Multi-Stage (3 fasi)
 

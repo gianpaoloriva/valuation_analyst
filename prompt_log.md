@@ -269,11 +269,11 @@ Tutti i demo usano dati hardcoded (no API), eseguibili con `python demos/XX_name
 **Skill:** Debug e correzioni
 **Problemi risolti:**
 
-1. **`.python-version` errato**: impostato a `3.11` ma l'utente ha `3.13.9` via pyenv → corretto
-2. **`pyproject.toml` build-backend errato**: `setuptools.backends._legacy:_Backend` → corretto a `setuptools.build_meta`
-3. **test_npv_positivo**: valore atteso `78.82` errato, il NPV corretto e' `115.57` → corretto test
-4. **test_tabella_semplice**: cercava `"---"` ma il separatore usa `":--"` (allineamento) → corretto a `"--"`
-5. **test_sconto_piccola_azienda**: cercava `sconto > 0.20` ma la formula Damodaran da' `0.098` per ricavi=5M → corretto a `>= 0.05` (floor)
+1. **`.python-version` errato**: impostato a `3.11` ma l'utente ha `3.13.9` via pyenv -> corretto
+2. **`pyproject.toml` build-backend errato**: `setuptools.backends._legacy:_Backend` -> corretto a `setuptools.build_meta`
+3. **test_npv_positivo**: valore atteso `78.82` errato, il NPV corretto e' `115.57` -> corretto test
+4. **test_tabella_semplice**: cercava `"---"` ma il separatore usa `":--"` (allineamento) -> corretto a `"--"`
+5. **test_sconto_piccola_azienda**: cercava `sconto > 0.20` ma la formula Damodaran da' `0.098` per ricavi=5M -> corretto a `>= 0.05` (floor)
 
 **Risultato finale: 139/139 test passing, 143 file totali, demo 01 verificata**
 
@@ -318,7 +318,7 @@ Creato script `scripts/run_msft_analysis.py` che esegue l'analisi completa di **
 | Agente | Metodo | Output |
 |--------|--------|--------|
 | Cost of Capital | WACC (CAPM + Kd sintetico) | WACC = 9.42%, Re = 9.53%, Kd post-tax = 4.14% |
-| DCF Analyst | DCF FCFF 3-stage (12%→2.5%) | $226.09/azione (EV $1,659B) |
+| DCF Analyst | DCF FCFF 3-stage (12%->2.5%) | $226.09/azione (EV $1,659B) |
 | Relative Analyst | Multipli vs 7 peers Big Tech | $403.15/azione (mediana EV/EBITDA) |
 | Risk Analyst | Sensitivity WACC/Growth | Range $140-$370/azione |
 | Risk Analyst | Scenari Best/Base/Worst | Valore atteso $225.53 |
@@ -357,7 +357,7 @@ Creato script `scripts/run_googl_analysis.py` che esegue l'analisi completa di *
 | Agente | Metodo | Output |
 |--------|--------|--------|
 | Cost of Capital | WACC (CAPM + Kd sintetico) | WACC = 10.00%, Re = 10.08%, Kd post-tax = 4.09% |
-| DCF Analyst | DCF FCFF 3-stage (14%→2.5%) | $131.99/azione (FCFF depresso da CapEx $52B) |
+| DCF Analyst | DCF FCFF 3-stage (14%->2.5%) | $131.99/azione (FCFF depresso da CapEx $52B) |
 | Relative Analyst | Multipli vs 7 peers | $251.60/azione (mediana multipli) |
 | Risk Analyst | Sensitivity WACC/Growth | Range variabile per combinazione |
 | Risk Analyst | Scenari Best/Base/Worst | Valore atteso $132.11 |
@@ -372,3 +372,166 @@ Creato script `scripts/run_googl_analysis.py` che esegue l'analisi completa di *
 **Output:** `report/GOOGL_valuation_report_2026-02-19.md` (13,158 caratteri, 9 sezioni)
 
 **Note:** Il DCF di Alphabet e' penalizzato dal CapEx molto elevato ($52B, 14.9% dei ricavi) per infrastruttura AI/Cloud. La valutazione relativa ($251.60) e' piu' favorevole: rispetto ai peers, GOOGL tratta a multipli relativamente contenuti (P/E 23.1x vs mediana 33.5x). Il mix ponderato suggerisce una leggera sopravvalutazione.
+
+---
+
+### 2026-02-19T14:00:00
+**Skill:** comparable-analysis (valutazione relativa approfondita)
+**Input:** Analisi di valutazione relativa completa per Microsoft Corporation (MSFT) tramite multipli di mercato
+**Agent:** relative-analyst
+**Summary:** Valutazione relativa MSFT con 7 comparabili Big Tech (AAPL, GOOGL, AMZN, META, NVDA, ORCL, CRM). Calcolati 5 multipli (P/E, EV/EBITDA, P/B, EV/Sales, EV/EBIT) con statistiche descrittive complete. Valore sintetico (mediana dei valori impliciti): $408.61/azione vs prezzo $399.60 (+2.3% upside). Raccomandazione: FAIR VALUE. MSFT tratta a sconto su P/E (-19.7%), EV/EBIT (-21.1%), sostanzialmente in linea su EV/EBITDA (-1.0%) e P/B (-2.2%), a premio su EV/Sales (+18.5%) giustificato dai margini operativi superiori (45.3% vs 32% mediana). Script: `scripts/run_msft_relative.py`.
+---
+
+### 2026-02-19T15:00:00
+**Skill:** sensitivity-analysis (analisi di rischio completa)
+**Input:** Analisi di rischio completa per Microsoft Corporation (MSFT): sensitivity analysis e simulazione Monte Carlo
+**Agent:** risk-analyst
+**Lavoro svolto:**
+
+Eseguita analisi di rischio completa su MSFT con 4 metodologie:
+
+1. **Sensitivity WACC vs Terminal Growth** (7x5 matrice):
+   - Range: $140.57 - $370.71 per azione
+   - Valore centrale (WACC=8.5%, g=2.5%): $202.69 (nota: WACC 8.5% < base case 9.17%)
+   - Caso base (WACC~9%, g=2.5%): ~$202.69
+
+2. **Sensitivity Crescita Ricavi vs Margine Operativo** (5x5 matrice):
+   - Range: $131.27 - $465.58 per azione
+   - Valore centrale (crescita=10%, margine=45%): $256.37
+   - Alta sensitivita' al margine operativo e alla crescita ricavi combinati
+
+3. **Analisi per Scenari** (Best/Base/Worst):
+   - Best Case (20%): $306.35 (accelerazione AI/Cloud)
+   - Base Case (55%): $235.65 (continuazione trend)
+   - Worst Case (25%): $176.74 (rallentamento macro)
+   - **Valore Atteso Ponderato: $235.06**
+
+4. **Monte Carlo DCF** (10,000 iterazioni, seed=42):
+   - Media: $247.35, Mediana: $237.40
+   - Dev. Standard: $62.83
+   - IC 90%: $164.89 - $363.32
+   - IC 50%: $203.96 - $279.74
+   - Distribuzioni: WACC~N(9.17%,1%), Crescita alta~N(12%,3%), Crescita stabile~Tri(1.5%,2.5%,3.5%)
+
+**Confronto con mercato:**
+- Prezzo corrente: $399.60
+- Tutti i metodi di rischio indicano valore intrinseco significativamente sotto il prezzo di mercato
+- Solo il 95-esimo percentile MC ($363.32) si avvicina al prezzo corrente
+
+**Script:** `analisi_rischio_msft.py`
+
+---
+
+### 2026-02-19T15:06:44+00:00
+**Skill:** comparable-analysis
+**Input:** Analisi di valutazione relativa completa per Alphabet Inc. (GOOGL) tramite multipli di mercato. 7 comparabili Big Tech & Digital Advertising.
+**Agent:** relative-analyst
+**Summary:** Valutazione relativa GOOGL con 7 comparabili. Valore sintetico (mediana): $266.24/azione vs prezzo $303.33. Multipli usati: P/E, EV/EBITDA, P/B, EV/Sales, EV/EBIT.
+---
+
+### 2026-02-19T16:00:00
+**Skill:** sensitivity-analysis (analisi di rischio completa)
+**Input:** Analisi di rischio completa per Alphabet Inc. (GOOGL): sensitivity analysis e simulazione Monte Carlo
+**Agent:** risk-analyst
+**Lavoro svolto:**
+
+Eseguita analisi di rischio completa su GOOGL con 4 metodologie:
+
+1. **Sensitivity WACC vs Terminal Growth** (7x5 matrice):
+   - Range: $78.83 - $175.25 per azione
+   - Valore centrale (WACC=9.5%, g=2.5%): $107.82
+   - Crescita alta base: 14% per 5 anni, convergenza lineare a terminale
+
+2. **Sensitivity Crescita Ricavi vs Margine Operativo** (5x5 matrice):
+   - Range: $73.84 - $328.28 per azione
+   - Valore centrale (crescita=10%, margine=32%): $142.33
+   - Altissima sensitivita' alla crescita ricavi (effetto leva operativa)
+
+3. **Analisi per Scenari** (Best/Base/Worst):
+   - Best Case (25%): $183.92 (accelerazione Gemini AI, Cloud >30%, YouTube dominante)
+   - Base Case (50%): $136.24 (continuazione trend attuale)
+   - Worst Case (25%): $95.37 (perdita quote search, antitrust, rallentamento ads)
+   - **Valore Atteso Ponderato: $137.94**
+
+4. **Monte Carlo DCF** (10,000 iterazioni, seed=42):
+   - Media: $145.17, Mediana: $137.67
+   - Dev. Standard: $43.80
+   - IC 90%: $89.37 - $224.63
+   - IC 50%: $114.83 - $166.62
+   - Distribuzioni: WACC~N(9.78%,1.2%), Crescita alta~N(14%,4%), Crescita stabile~Tri(1.5%,2.5%,3.5%)
+
+**Confronto con mercato:**
+- Prezzo corrente: $303.33
+- Probabilita' valore >= prezzo mercato (MC): 0.6%
+- Il prezzo di mercato e' ben al di sopra del 95-esimo percentile MC ($224.63)
+- Tutti i metodi indicano forte sopravvalutazione rispetto al valore intrinseco DCF
+
+**Script:** `analisi_rischio_googl.py`
+
+---
+
+### 2026-02-19T16:30:00 - Refactoring: Script Unico di Analisi con Config JSON
+**Prompt utente:** Unifica gli script di analisi in un unico script generico con configurazione JSON per ticker. Elimina duplicazioni e dati hardcoded.
+**Lavoro svolto:**
+
+**Problema:** `run_googl_analysis.py` e `run_msft_analysis.py` erano ~700 righe ciascuno, identici al 95%. Per ogni nuovo ticker bisognava duplicare l'intero script. I dati fondamentali di fallback erano hardcoded in `fetch_dati.py`.
+
+**Soluzione implementata:**
+
+1. **Creato `scripts/configs/GOOGL.json`, `MSFT.json`, `AAPL.json`** - File JSON con tutti i parametri dell'analista per ogni ticker: ERP, rating, crescita, comparabili, sensitivity ranges, scenari, Monte Carlo, rischi, fondamentali di fallback.
+
+2. **Creato `scripts/run_analysis.py`** (~380 righe) - Script unico generico che:
+   - Legge la configurazione da `scripts/configs/{TICKER}.json`
+   - Recupera dati live da Massive.com (prezzo, market cap, risk-free rate)
+   - Usa fondamentali da API o da fallback nel JSON
+   - Genera report completo in `report/`
+   - Uso: `python scripts/run_analysis.py GOOGL`
+
+3. **Aggiornato `scripts/fetch_dati.py`** - Rimosso il dizionario `_FALLBACK` hardcoded, sostituito con `_carica_fallback()` che legge `fondamentali_fallback` dal JSON config del ticker.
+
+4. **Eliminati file obsoleti:**
+   - `scripts/run_googl_analysis.py`, `scripts/run_msft_analysis.py`
+   - `scripts/run_googl_relative.py`, `scripts/run_msft_relative.py`
+   - `analisi_rischio_googl.py`, `analisi_rischio_msft.py`
+   - `data/samples/apple_financials.json`, `data/samples/sample_comparables.json`
+
+5. **Aggiunto ticker AAPL** - Creato config completo con stime ragionevoli e fondamentali FY2024.
+
+6. **Aggiornato `README.md`** - Documentazione completa su uso dello script, struttura JSON, come aggiungere un nuovo ticker, come modificare i parametri.
+
+**Verifiche:**
+- `python scripts/run_analysis.py GOOGL` -> report generato
+- `python scripts/run_analysis.py MSFT` -> report generato
+- `python scripts/run_analysis.py AAPL` -> report generato
+- `pytest tests/ -q` -> 139 test passing
+- Nessun dato finanziario hardcoded rimasto nel codice Python
+
+**Principio:** Un unico posto per ogni parametro. Tutto cio' che e' ticker-specifico sta nel JSON config, il codice Python e' completamente generico.
+
+---
+
+### 2026-02-19T16:50:00 - Generazione PDF con layout professionale
+**Prompt utente:** Genera i PDF dei tre report con un tocco di presentazione grafica. Sposta i PDF in report/pdf/.
+**Lavoro svolto:**
+
+Creato `scripts/md_to_pdf.py` - script di conversione markdown->PDF con layout professionale usando fpdf2:
+
+- **Copertina** con sfondo navy, ticker grande (72pt), nome azienda, metadati (data, analista, metodologia), linea accent decorativa
+- **Header** su ogni pagina con barra navy e info ticker/data
+- **Sezioni H2** con barra colorata blu scuro e testo bianco
+- **Sottosezioni H3** con testo steel blue e linea accent
+- **Tabelle** con header navy, righe alternate (bianco/grigio chiaro), senza bordi pesanti
+- **Bullet point** con pallino accent blu
+- **Blockquote** con barra laterale accent e testo italic
+- **Badge raccomandazione** colorato (verde=BUY, rosso=SELL, arancione=HOLD)
+- **Code block** con sfondo grigio chiaro e font Courier
+- **Palette colori** coerente: navy, dark blue, steel, accent blue, grey text
+
+Output in `report/pdf/`:
+- `AAPL_valuation_report_2026-02-19.pdf` (17,666 bytes)
+- `GOOGL_valuation_report_2026-02-19.pdf` (17,793 bytes)
+- `MSFT_valuation_report_2026-02-19.pdf` (17,437 bytes)
+
+Uso: `python scripts/md_to_pdf.py` (tutti) oppure `python scripts/md_to_pdf.py GOOGL` (singolo).
+
+---

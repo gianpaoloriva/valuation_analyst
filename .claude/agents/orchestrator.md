@@ -101,5 +101,5 @@ di dati tra loro e sintetizzare i risultati in un report finale coerente.
 ```
 
 ## Output Finale
-Il report finale va salvato in `data/reports/` con nome:
+Il report finale va salvato in `report/` con nome:
 `{ticker}_{data}_valuation.md`
