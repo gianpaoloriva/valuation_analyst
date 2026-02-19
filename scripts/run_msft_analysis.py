@@ -14,6 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
+from fetch_dati import fetch_dati_azienda
 from valuation_analyst.tools.capm import calcola_costo_equity, calcola_costo_equity_dettagliato
 from valuation_analyst.tools.wacc import calcola_wacc, calcola_wacc_completo
 from valuation_analyst.tools.beta_estimation import beta_levered, beta_unlevered, total_beta
@@ -41,59 +42,58 @@ from valuation_analyst.utils.formatting import (
 )
 
 # ===========================================================================
-# DATI FINANZIARI MSFT (FY2025 TTM - dati pubblici recenti)
+# DATI LIVE DA MASSIVE.COM
 # ===========================================================================
-# Fonte: bilanci pubblici Microsoft, dati di mercato febbraio 2026
 
 TICKER = "MSFT"
-NOME = "Microsoft Corporation"
-SETTORE = "Technology - Software"
-PAESE = "US"
-VALUTA = "USD"
+dati = fetch_dati_azienda(TICKER)
 
-# Dati di mercato (febbraio 2026)
-PREZZO_CORRENTE = 415.0       # USD per azione (approssimativo)
-SHARES_OUTSTANDING = 7_430.0  # milioni di azioni
-MARKET_CAP = PREZZO_CORRENTE * SHARES_OUTSTANDING  # ~3,083,450 M
+NOME = dati["nome"]
+SETTORE = dati["settore"]
+PAESE = dati["paese"]
+VALUTA = dati["valuta"]
+
+# Dati di mercato (in milioni, eccetto prezzo per azione)
+PREZZO_CORRENTE = dati["prezzo_corrente"]
+SHARES_OUTSTANDING = dati["shares_outstanding"]
+MARKET_CAP = dati["market_cap"]
 
 # Conto economico (TTM, in milioni USD)
-RICAVI = 261_800.0
-EBIT = 118_500.0
-EBITDA = 135_200.0
-UTILE_NETTO = 97_200.0
-EPS = UTILE_NETTO / SHARES_OUTSTANDING  # ~13.08
+RICAVI = dati["ricavi"]
+EBIT = dati["ebit"]
+EBITDA = dati["ebitda"]
+UTILE_NETTO = dati["utile_netto"]
+EPS = dati["eps"]
 
 # Stato patrimoniale (in milioni USD)
-TOTAL_DEBT = 59_000.0
-CASH = 80_000.0
-BOOK_VALUE_EQUITY = 268_500.0
-BOOK_VALUE_PER_SHARE = BOOK_VALUE_EQUITY / SHARES_OUTSTANDING  # ~36.1
+TOTAL_DEBT = dati["total_debt"]
+CASH = dati["cash"]
+BOOK_VALUE_EQUITY = dati["book_value_equity"]
+BOOK_VALUE_PER_SHARE = dati["book_value_per_share"]
 
 # Cash flow (in milioni USD)
-CAPEX = 44_500.0
-DEPREZZAMENTO = 16_700.0
-DELTA_WC = 3_200.0
+CAPEX = dati["capex"]
+DEPREZZAMENTO = dati["deprezzamento"]
+DELTA_WC = dati["delta_wc"]
 
 # Parametri fiscali
-TAX_RATE = 0.18  # aliquota effettiva MSFT
+TAX_RATE = dati["tax_rate"]
 
-# Parametri di mercato
-RISK_FREE_RATE = 0.043       # US 10Y Treasury (feb 2026)
-BETA_LEVERED = 0.95          # Beta MSFT
-ERP = 0.055                  # Equity Risk Premium (Damodaran US)
-RATING_CREDITO = "AAA"       # Rating S&P di Microsoft
+# Parametri di mercato (live + stime analista)
+RISK_FREE_RATE = dati["risk_free_rate"]
+BETA_LEVERED = dati["beta_levered"]
+ERP = 0.055                  # Equity Risk Premium (Damodaran US) - stima analista
+RATING_CREDITO = "AAA"       # Rating S&P di Microsoft - stima analista
 
-# Parametri di crescita
+# Parametri di crescita (stime analista)
 CRESCITA_ALTA = 0.12         # 12% fase alta (AI/Cloud growth)
 CRESCITA_STABILE = 0.025     # 2.5% crescita perpetua
 ANNI_ALTA = 5
 ANNI_TRANSIZIONE = 5
 
-# Debito netto
-DEBITO_NETTO = TOTAL_DEBT - CASH  # negativo = net cash position
-
-# Enterprise Value
-ENTERPRISE_VALUE = MARKET_CAP + DEBITO_NETTO
+# Derivati
+DEBITO_NETTO = dati["debito_netto"]
+ENTERPRISE_VALUE = dati["enterprise_value"]
 
 # ===========================================================================
 # COMPARABILI Big Tech

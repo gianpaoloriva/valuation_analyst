@@ -13,6 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
+from fetch_dati import fetch_dati_azienda
 from valuation_analyst.tools.capm import calcola_costo_equity, calcola_costo_equity_dettagliato
 from valuation_analyst.tools.wacc import calcola_wacc, calcola_wacc_completo
 from valuation_analyst.tools.beta_estimation import beta_unlevered
@@ -31,57 +32,58 @@ from valuation_analyst.utils.formatting import (
 )
 
 # ===========================================================================
-# DATI FINANZIARI GOOGL (FY2025 TTM - dati pubblici recenti)
+# DATI LIVE DA MASSIVE.COM
 # ===========================================================================
-# Fonte: bilanci pubblici Alphabet, dati di mercato febbraio 2026
 
 TICKER = "GOOGL"
-NOME = "Alphabet Inc."
-SETTORE = "Technology - Internet Content & Information"
-PAESE = "US"
-VALUTA = "USD"
+dati = fetch_dati_azienda(TICKER)
 
-# Dati di mercato (febbraio 2026)
-PREZZO_CORRENTE = 178.0       # USD per azione (approssimativo)
-SHARES_OUTSTANDING = 12_200.0 # milioni di azioni (Classe A + B + C)
-MARKET_CAP = PREZZO_CORRENTE * SHARES_OUTSTANDING  # ~2,171,600 M
+NOME = dati["nome"]
+SETTORE = dati["settore"]
+PAESE = dati["paese"]
+VALUTA = dati["valuta"]
+
+# Dati di mercato (in milioni, eccetto prezzo per azione)
+PREZZO_CORRENTE = dati["prezzo_corrente"]
+SHARES_OUTSTANDING = dati["shares_outstanding"]
+MARKET_CAP = dati["market_cap"]
 
 # Conto economico (TTM, in milioni USD)
-RICAVI = 350_000.0
-EBIT = 112_000.0
-EBITDA = 130_000.0
-UTILE_NETTO = 94_000.0
-EPS = UTILE_NETTO / SHARES_OUTSTANDING  # ~7.70
+RICAVI = dati["ricavi"]
+EBIT = dati["ebit"]
+EBITDA = dati["ebitda"]
+UTILE_NETTO = dati["utile_netto"]
+EPS = dati["eps"]
 
 # Stato patrimoniale (in milioni USD)
-TOTAL_DEBT = 28_500.0
-CASH = 108_000.0             # Cash + Short-term investments
-BOOK_VALUE_EQUITY = 315_000.0
-BOOK_VALUE_PER_SHARE = BOOK_VALUE_EQUITY / SHARES_OUTSTANDING  # ~25.82
+TOTAL_DEBT = dati["total_debt"]
+CASH = dati["cash"]
+BOOK_VALUE_EQUITY = dati["book_value_equity"]
+BOOK_VALUE_PER_SHARE = dati["book_value_per_share"]
 
 # Cash flow (in milioni USD)
-CAPEX = 52_000.0             # CapEx elevato per infrastruttura AI/Cloud
-DEPREZZAMENTO = 18_000.0
-DELTA_WC = 2_500.0
+CAPEX = dati["capex"]
+DEPREZZAMENTO = dati["deprezzamento"]
+DELTA_WC = dati["delta_wc"]
 
 # Parametri fiscali
-TAX_RATE = 0.14              # aliquota effettiva Alphabet
+TAX_RATE = dati["tax_rate"]
 
-# Parametri di mercato
-RISK_FREE_RATE = 0.043       # US 10Y Treasury (feb 2026)
-BETA_LEVERED = 1.05          # Beta GOOGL
-ERP = 0.055                  # Equity Risk Premium (Damodaran US)
-RATING_CREDITO = "AA+"       # Rating S&P di Alphabet
+# Parametri di mercato (live + stime analista)
+RISK_FREE_RATE = dati["risk_free_rate"]
+BETA_LEVERED = dati["beta_levered"]
+ERP = 0.055                  # Equity Risk Premium (Damodaran US) - stima analista
+RATING_CREDITO = "AA+"       # Rating S&P di Alphabet - stima analista
 
-# Parametri di crescita
+# Parametri di crescita (stime analista)
 CRESCITA_ALTA = 0.14         # 14% fase alta (AI, Cloud, YouTube growth)
 CRESCITA_STABILE = 0.025     # 2.5% crescita perpetua
 ANNI_ALTA = 5
 ANNI_TRANSIZIONE = 5
 
 # Derivati
-DEBITO_NETTO = TOTAL_DEBT - CASH  # fortemente negativo = net cash
-ENTERPRISE_VALUE = MARKET_CAP + DEBITO_NETTO
+DEBITO_NETTO = dati["debito_netto"]
+ENTERPRISE_VALUE = dati["enterprise_value"]
 
 # ===========================================================================
 # COMPARABILI - Big Tech & Digital Advertising

@@ -1,4 +1,4 @@
-# Report di Valutazione - Alphabet Inc. (GOOGL)
+# Report di Valutazione - Alphabet Inc. Class A Common Stock (GOOGL)
 **Data:** 2026-02-19
 **Analista:** Valuation Analyst Multi-Agent System
 **Metodologia:** Damodaran (NYU Stern)
@@ -7,26 +7,26 @@
 
 ## 1. Panoramica Aziendale
 
-| Indicatore             | Valore                                      |
-| :--------------------- | :------------------------------------------ |
-| Ticker                 | GOOGL                                       |
-| Settore                | Technology - Internet Content & Information |
-| Paese                  | US                                          |
-| Prezzo Corrente        | $178.00                                     |
-| Market Cap             | $2,171.60B                                  |
-| Enterprise Value       | $2,092.10B                                  |
-| Azioni in Circolazione | 12,200M                                     |
-| Ricavi (TTM)           | $350.00B                                    |
-| EBITDA (TTM)           | $130.00B                                    |
-| EBIT (TTM)             | $112.00B                                    |
-| Utile Netto (TTM)      | $94.00B                                     |
-| EPS                    | $7.70                                       |
-| Book Value/Share       | $25.82                                      |
-| Debito Totale          | $28.50B                                     |
-| Cassa e Investimenti   | $108.00B                                    |
-| Debito Netto           | -$79.50B                                    |
-| Rating                 | AA+                                         |
-| Beta                   | 1.05                                        |
+| Indicatore             | Valore                                               |
+| :--------------------- | :--------------------------------------------------- |
+| Ticker                 | GOOGL                                                |
+| Settore                | SERVICES-COMPUTER PROGRAMMING, DATA PROCESSING, ETC. |
+| Paese                  | US                                                   |
+| Prezzo Corrente        | $303.33                                              |
+| Market Cap             | $3,669.38B                                           |
+| Enterprise Value       | $3,604.66B                                           |
+| Azioni in Circolazione | 12,097M                                              |
+| Ricavi (TTM)           | $350.02B                                             |
+| EBITDA (TTM)           | $130.64B                                             |
+| EBIT (TTM)             | $112.39B                                             |
+| Utile Netto (TTM)      | $100.68B                                             |
+| EPS                    | $8.32                                                |
+| Book Value/Share       | $26.87                                               |
+| Debito Totale          | $28.50B                                              |
+| Cassa e Investimenti   | $93.23B                                              |
+| Debito Netto           | -$64.72B                                             |
+| Rating                 | AA+                                                  |
+| Beta                   | 1.05                                                 |
 
 ## 2. Costo del Capitale (WACC)
 
@@ -34,15 +34,15 @@
 
 **Formula CAPM:** `Re = Rf + Beta * ERP + CRP`
 
-| Componente                              | Valore     |
-| :-------------------------------------- | :--------- |
-| Risk-Free Rate (US 10Y)                 | 4.30%      |
-| Beta Levered                            | 1.05       |
-| Beta Unlevered                          | 1.038      |
-| Equity Risk Premium                     | 5.50%      |
-| Premio Rischio Sistematico (Beta x ERP) | 5.78%      |
-| Country Risk Premium                    | 0.00%      |
-| **Costo Equity (Re)**                   | **10.08%** |
+| Componente                              | Valore    |
+| :-------------------------------------- | :-------- |
+| Risk-Free Rate (US 10Y)                 | 4.05%     |
+| Beta Levered                            | 1.05      |
+| Beta Unlevered                          | 1.043     |
+| Equity Risk Premium                     | 5.50%     |
+| Premio Rischio Sistematico (Beta x ERP) | 5.78%     |
+| Country Risk Premium                    | 0.00%     |
+| **Costo Equity (Re)**                   | **9.83%** |
 
 ### 2.2 Costo del Debito
 
@@ -50,23 +50,23 @@
 | :------------------------ | :-------- |
 | Rating Creditizio         | AA+       |
 | Default Spread            | 0.85%     |
-| Costo Debito Pre-Tax (Kd) | 5.15%     |
+| Costo Debito Pre-Tax (Kd) | 4.90%     |
 | Tax Rate Effettivo        | 14.00%    |
-| **Costo Debito Post-Tax** | **4.43%** |
+| **Costo Debito Post-Tax** | **4.21%** |
 
 ### 2.3 WACC
 
 **Formula:** `WACC = (E/V) * Re + (D/V) * Rd * (1-t)`
 
-| Componente            | Valore     |
-| :-------------------- | :--------- |
-| Peso Equity (E/V)     | 98.70%     |
-| Peso Debito (D/V)     | 1.30%      |
-| Costo Equity (Re)     | 10.08%     |
-| Costo Debito Post-Tax | 4.43%      |
-| **WACC**              | **10.00%** |
+| Componente            | Valore    |
+| :-------------------- | :-------- |
+| Peso Equity (E/V)     | 99.23%    |
+| Peso Debito (D/V)     | 0.77%     |
+| Costo Equity (Re)     | 9.83%     |
+| Costo Debito Post-Tax | 4.21%     |
+| **WACC**              | **9.78%** |
 
-> **Nota:** Alphabet ha una posizione di cassa netta di $79.50B (cassa > debito). Il peso del debito nella struttura del capitale e' minimo (1.30%), rendendo il WACC molto vicino al costo dell'equity.
+> **Nota:** Alphabet ha una posizione di cassa netta di $64.72B (cassa > debito). Il peso del debito nella struttura del capitale e' minimo (0.77%), rendendo il WACC molto vicino al costo dell'equity.
 
 ## 3. Valutazione DCF (FCFF)
 
@@ -76,65 +76,65 @@
 
 | Componente      | Valore (M USD) |
 | :-------------- | :------------- |
-| EBIT            | 112,000.00     |
-| EBIT * (1-t)    | 96,320.00      |
-| + Deprezzamento | 18,000.00      |
-| - CapEx         | 52,000.00      |
+| EBIT            | 112,387.00     |
+| EBIT * (1-t)    | 96,652.82      |
+| + Deprezzamento | 18,256.00      |
+| - CapEx         | 52,549.00      |
 | - Delta WC      | 2,500.00       |
-| **FCFF Base**   | **59,820.00**  |
+| **FCFF Base**   | **59,859.82**  |
 
-> **Nota:** Il CapEx di Alphabet ($52.00B) e' molto elevato rispetto ai ricavi (14.9%), riflettendo gli ingenti investimenti in data center e infrastruttura AI. Questo deprime il FCFF attuale ma dovrebbe generare ritorni futuri.
+> **Nota:** Il CapEx di Alphabet ($52.55B) e' molto elevato rispetto ai ricavi (15.0%), riflettendo gli ingenti investimenti in data center e infrastruttura AI. Questo deprime il FCFF attuale ma dovrebbe generare ritorni futuri.
 
 ### 3.2 Proiezione Multi-Stage (3 fasi)
 
 - **Fase 1 (Alta crescita):** 14% per 5 anni
 - **Fase 2 (Transizione):** convergenza lineare per 5 anni
 - **Fase 3 (Stabile):** 2.5% in perpetuita'
-- **Tasso di sconto (WACC):** 10.00%
+- **Tasso di sconto (WACC):** 9.78%
 
 | Anno | Tasso Crescita | FCFF (M)   | Valore Attuale (M) |
 | :--- | :------------- | :--------- | :----------------- |
-| 1    | 14.00%         | 68,194.80  | 61,994.22          |
-| 2    | 14.00%         | 77,742.07  | 64,247.47          |
-| 3    | 14.00%         | 88,625.96  | 66,582.62          |
-| 4    | 14.00%         | 101,033.60 | 69,002.63          |
-| 5    | 14.00%         | 115,178.30 | 71,510.61          |
-| 6    | 11.70%         | 128,654.16 | 72,614.54          |
-| 7    | 9.40%          | 140,747.65 | 72,217.24          |
-| 8    | 7.10%          | 150,740.74 | 70,312.14          |
-| 9    | 4.80%          | 157,976.29 | 66,987.16          |
-| 10   | 2.50%          | 161,925.70 | 62,418.80          |
+| 1    | 14.00%         | 68,240.19  | 62,159.87          |
+| 2    | 14.00%         | 77,793.82  | 64,548.30          |
+| 3    | 14.00%         | 88,684.96  | 67,028.50          |
+| 4    | 14.00%         | 101,100.85 | 69,604.00          |
+| 5    | 14.00%         | 115,254.97 | 72,278.47          |
+| 6    | 11.70%         | 128,739.80 | 73,541.41          |
+| 7    | 9.40%          | 140,841.34 | 73,285.68          |
+| 8    | 7.10%          | 150,841.08 | 71,495.46          |
+| 9    | 4.80%          | 158,081.45 | 68,251.09          |
+| 10   | 2.50%          | 162,033.49 | 63,724.04          |
 
 ### 3.3 Riepilogo Valutazione DCF
 
 | Componente                   | Valore         |
 | :--------------------------- | :------------- |
-| VA Flussi di Cassa Espliciti | $677.89B       |
-| Terminal Value (nominale)    | $2,212.44B     |
-| VA Terminal Value            | $852.85B       |
-| TV come % del Totale         | 0.56%          |
-| **Enterprise Value**         | **$1,530.73B** |
-| - Debito Netto               | -$79.50B       |
-| **Equity Value**             | **$1,610.23B** |
-| Azioni in Circolazione       | 12,200M        |
-| **Valore per Azione (DCF)**  | **$131.99**    |
-| Prezzo Corrente              | $178.00        |
-| **Upside/Downside**          | **-25.9%**     |
+| VA Flussi di Cassa Espliciti | $685.92B       |
+| Terminal Value (nominale)    | $2,280.83B     |
+| VA Terminal Value            | $897.00B       |
+| TV come % del Totale         | 0.57%          |
+| **Enterprise Value**         | **$1,582.91B** |
+| - Debito Netto               | -$64.72B       |
+| **Equity Value**             | **$1,647.64B** |
+| Azioni in Circolazione       | 12,097M        |
+| **Valore per Azione (DCF)**  | **$136.20**    |
+| Prezzo Corrente              | $303.33        |
+| **Upside/Downside**          | **-55.1%**     |
 
 ## 4. Valutazione Relativa (Multipli)
 
 ### 4.1 Campione Comparabili
 
-| Ticker    | Nome                  | Market Cap (B) | P/E      | EV/EBITDA | P/B     | EV/Sales |
-| :-------- | :-------------------- | :------------- | :------- | :-------- | :------ | :------- |
-| MSFT      | Microsoft Corporation | $3,083B        | 31.7     | 22.7      | 11.5    | 11.7     |
-| META      | Meta Platforms Inc.   | $1,600B        | 27.5     | 16.0      | 9.0     | 11.5     |
-| AMZN      | Amazon.com Inc.       | $2,300B        | 42.0     | 18.5      | 9.5     | 4.0      |
-| AAPL      | Apple Inc.            | $3,450B        | 33.5     | 26.8      | 62.0    | 9.0      |
-| SNAP      | Snap Inc.             | $25B           | N/D      | 85.0      | 12.0    | 4.5      |
-| TTD       | The Trade Desk Inc.   | $55B           | 140.0    | 75.0      | 35.0    | 26.0     |
-| BIDU      | Baidu Inc.            | $38B           | 11.0     | 5.5       | 0.9     | 2.0      |
-| **GOOGL** | **Alphabet Inc.**     | **$2,172B**    | **23.1** | **16.1**  | **6.9** | **6.0**  |
+| Ticker    | Nome                                   | Market Cap (B) | P/E      | EV/EBITDA | P/B      | EV/Sales |
+| :-------- | :------------------------------------- | :------------- | :------- | :-------- | :------- | :------- |
+| MSFT      | Microsoft Corporation                  | $3,083B        | 31.7     | 22.7      | 11.5     | 11.7     |
+| META      | Meta Platforms Inc.                    | $1,600B        | 27.5     | 16.0      | 9.0      | 11.5     |
+| AMZN      | Amazon.com Inc.                        | $2,300B        | 42.0     | 18.5      | 9.5      | 4.0      |
+| AAPL      | Apple Inc.                             | $3,450B        | 33.5     | 26.8      | 62.0     | 9.0      |
+| SNAP      | Snap Inc.                              | $25B           | N/D      | 85.0      | 12.0     | 4.5      |
+| TTD       | The Trade Desk Inc.                    | $55B           | 140.0    | 75.0      | 35.0     | 26.0     |
+| BIDU      | Baidu Inc.                             | $38B           | 11.0     | 5.5       | 0.9      | 2.0      |
+| **GOOGL** | **Alphabet Inc. Class A Common Stock** | **$3,669B**    | **36.4** | **27.6**  | **11.3** | **10.3** |
 
 ### 4.2 Statistiche Multipli Comparabili
 
@@ -147,14 +147,14 @@
 
 | Multiplo  | Valore Implicito/Azione |
 | :-------- | :---------------------- |
-| PE/RATIO  | $251.18                 |
-| EV/EBITDA | $248.40                 |
-| PB/RATIO  | $296.93                 |
-| EV/SALES  | $264.71                 |
-| EV/EBIT   | $251.60                 |
+| PE/RATIO  | $271.32                 |
+| EV/EBITDA | $250.50                 |
+| PB/RATIO  | $309.04                 |
+| EV/SALES  | $265.76                 |
+| EV/EBIT   | $253.74                 |
 
-**Valore Mediano Multipli:** $251.60
-**Upside/Downside:** +41.3%
+**Valore Mediano Multipli:** $265.76
+**Upside/Downside:** -12.4%
 
 ## 5. Analisi di Sensitivita'
 
@@ -164,23 +164,23 @@ Valore per azione al variare di WACC e crescita terminale:
 
 | WACC \ Terminal Growth | 1.5%    | 2.0%    | 2.5%    | 3.0%    | 3.5%    |
 | :--------------------- | :------ | :------ | :------ | :------ | :------ |
-| 8.0%                   | $128.26 | $137.02 | $147.36 | $159.75 | $174.87 |
-| 9.0%                   | $111.07 | $117.38 | $124.65 | $133.13 | $143.13 |
-| 9.5%                   | $104.10 | $109.54 | $115.75 | $122.91 | $131.25 |
-| 10.0%                  | $97.96  | $102.69 | $108.05 | $114.16 | $121.20 |
-| 10.5%                  | $92.51  | $96.66  | $101.32 | $106.59 | $112.60 |
-| 11.0%                  | $87.65  | $91.31  | $95.39  | $99.97  | $105.16 |
-| 12.0%                  | $79.33  | $82.23  | $85.42  | $88.97  | $92.92  |
+| 8.0%                   | $128.22 | $137.05 | $147.48 | $159.99 | $175.25 |
+| 9.0%                   | $110.86 | $117.23 | $124.57 | $133.13 | $143.22 |
+| 9.5%                   | $103.83 | $109.32 | $115.59 | $122.81 | $131.23 |
+| 10.0%                  | $97.63  | $102.41 | $107.82 | $113.98 | $121.09 |
+| 10.5%                  | $92.14  | $96.32  | $101.02 | $106.34 | $112.41 |
+| 11.0%                  | $87.23  | $90.92  | $95.04  | $99.67  | $104.90 |
+| 12.0%                  | $78.83  | $81.76  | $84.98  | $88.56  | $92.55  |
 
 ### 5.2 Crescita Ricavi vs Margine Operativo
 
 | Crescita Ricavi \ Margine Operativo | 25.0%   | 30.0%   | 32.0%   | 35.0%   | 40.0%   |
 | :---------------------------------- | :------ | :------ | :------ | :------ | :------ |
-| 5.0%                                | $72.62  | $90.19  | $97.22  | $107.76 | $125.34 |
-| 8.0%                                | $89.73  | $111.41 | $120.09 | $133.10 | $154.79 |
-| 10.0%                               | $103.52 | $128.50 | $138.49 | $153.47 | $178.45 |
-| 14.0%                               | $138.21 | $171.37 | $184.63 | $204.53 | $237.68 |
-| 18.0%                               | $184.80 | $228.83 | $246.44 | $272.85 | $316.88 |
+| 5.0%                                | $73.83  | $92.00  | $99.27  | $110.17 | $128.34 |
+| 8.0%                                | $91.68  | $114.13 | $123.11 | $136.58 | $159.04 |
+| 10.0%                               | $106.08 | $131.95 | $142.31 | $157.83 | $183.71 |
+| 14.0%                               | $142.30 | $176.70 | $190.47 | $211.11 | $245.52 |
+| 18.0%                               | $190.98 | $236.72 | $255.02 | $282.47 | $328.21 |
 
 ## 6. Analisi per Scenari
 
@@ -191,18 +191,18 @@ Valore per azione al variare di WACC e crescita terminale:
 
 | Scenario          | Probabilita' | Valore/Azione | Contributo Ponderato |
 | :---------------- | :----------- | :------------ | :------------------- |
-| Best Case         | 25%          | $178.18       | $44.55               |
-| Base Case         | 50%          | $131.99       | $65.99               |
-| Worst Case        | 25%          | $92.39        | $23.10               |
-| **Valore Atteso** | 100%         |               | **$133.64**          |
+| Best Case         | 25%          | $183.87       | $45.97               |
+| Base Case         | 50%          | $136.20       | $68.10               |
+| Worst Case        | 25%          | $95.34        | $23.84               |
+| **Valore Atteso** | 100%         |               | **$137.90**          |
 
-**Valore Atteso Ponderato:** $133.64
+**Valore Atteso Ponderato:** $137.90
 
 ## 7. Simulazione Monte Carlo
 
 **Parametri della simulazione:**
 - Iterazioni: 10.000
-- WACC: Distribuzione Normale (media=10.00%, std=1.2%)
+- WACC: Distribuzione Normale (media=9.78%, std=1.2%)
 - Crescita Alta: Distribuzione Normale (media=14%, std=4%)
 - Crescita Stabile: Distribuzione Triangolare (1.5%, 2.5%, 3.5%)
 
@@ -211,70 +211,70 @@ Valore per azione al variare di WACC e crescita terminale:
 
 | Statistica | Valore |
 |-----------|--------|
-| Media | $140.20 |
-| Mediana | $133.26 |
-| Dev. Standard | $41.01 |
-| Minimo | $54.28 |
-| 5° Percentile | $87.50 |
-| 25° Percentile | $111.69 |
-| 75° Percentile | $160.60 |
-| 95° Percentile | $214.97 |
-| Massimo | $463.87 |
+| Media | $145.13 |
+| Mediana | $137.64 |
+| Dev. Standard | $43.78 |
+| Minimo | $54.54 |
+| 5° Percentile | $89.35 |
+| 25° Percentile | $114.80 |
+| 75° Percentile | $166.57 |
+| 95° Percentile | $224.55 |
+| Massimo | $518.59 |
 
-**IC 90%:** $87.50 - $214.97
-**IC 50%:** $111.69 - $160.60
+**IC 90%:** $89.35 - $224.55
+**IC 50%:** $114.80 - $166.57
 
 ### Distribuzione dei Valori Simulati
 
 ```
-    54.3 -     70.7 | █ (57)
-    70.7 -     87.1 | ███████████ (423)
-    87.1 -    103.4 | ██████████████████████████████ (1158)
-   103.4 -    119.8 | ███████████████████████████████████████████████ (1793)
-   119.8 -    136.2 | ██████████████████████████████████████████████████ (1895)
-   136.2 -    152.6 | █████████████████████████████████████████ (1589)
-   152.6 -    169.0 | █████████████████████████████ (1104)
-   169.0 -    185.4 | ███████████████████ (738)
-   185.4 -    201.7 | ████████████ (473)
-   201.7 -    218.1 | ███████ (303)
-   218.1 -    234.5 | ████ (164)
-   234.5 -    250.9 | ███ (118)
-   250.9 -    267.3 | █ (68)
-   267.3 -    283.7 | █ (44)
-   283.7 -    300.0 |  (29)
-   300.0 -    316.4 |  (18)
-   316.4 -    332.8 |  (7)
-   332.8 -    349.2 |  (6)
-   349.2 -    365.6 |  (5)
-   365.6 -    382.0 |  (2)
-   382.0 -    398.3 |  (1)
-   398.3 -    414.7 |  (2)
-   414.7 -    431.1 |  (2)
-   431.1 -    447.5 |  (0)
-   447.5 -    463.9 |  (1)
+    54.5 -     73.1 | █ (71)
+    73.1 -     91.7 | █████████████ (530)
+    91.7 -    110.2 | ████████████████████████████████████ (1450)
+   110.2 -    128.8 | ██████████████████████████████████████████████████ (1996)
+   128.8 -    147.3 | ███████████████████████████████████████████████ (1906)
+   147.3 -    165.9 | █████████████████████████████████████ (1512)
+   165.9 -    184.5 | ████████████████████████ (962)
+   184.5 -    203.0 | ███████████████ (612)
+   203.0 -    221.6 | ██████████ (402)
+   221.6 -    240.2 | █████ (212)
+   240.2 -    258.7 | ███ (134)
+   258.7 -    277.3 | ██ (86)
+   277.3 -    295.8 | █ (46)
+   295.8 -    314.4 |  (34)
+   314.4 -    333.0 |  (19)
+   333.0 -    351.5 |  (8)
+   351.5 -    370.1 |  (5)
+   370.1 -    388.7 |  (6)
+   388.7 -    407.2 |  (2)
+   407.2 -    425.8 |  (2)
+   425.8 -    444.3 |  (3)
+   444.3 -    462.9 |  (1)
+   462.9 -    481.5 |  (0)
+   481.5 -    500.0 |  (0)
+   500.0 -    518.6 |  (1)
 ```
 
 ## 8. Sintesi Multi-Metodo e Raccomandazione
 
 | Metodo                          | Valore/Azione | Upside/Downside | Peso |
 | :------------------------------ | :------------ | :-------------- | :--- |
-| DCF FCFF (3-stage)              | $131.99       | -25.9%          | 40%  |
-| Valutazione Relativa (Multipli) | $251.60       | +41.3%          | 25%  |
-| Valore Atteso Scenari           | $133.64       | -24.9%          | 15%  |
-| Monte Carlo (Mediana)           | $133.26       | -25.1%          | 20%  |
+| DCF FCFF (3-stage)              | $136.20       | -55.1%          | 40%  |
+| Valutazione Relativa (Multipli) | $265.76       | -12.4%          | 25%  |
+| Valore Atteso Scenari           | $137.90       | -54.5%          | 15%  |
+| Monte Carlo (Mediana)           | $137.64       | -54.6%          | 20%  |
 
 ### Valore Intrinseco Stimato
 
 | | |
 |---|---|
-| **Valore Medio Ponderato** | **$162.39** |
-| Prezzo Corrente | $178.00 |
-| **Upside/Downside** | **-8.8%** |
-| IC 90% Monte Carlo | $87.50 - $214.97 |
+| **Valore Medio Ponderato** | **$169.13** |
+| Prezzo Corrente | $303.33 |
+| **Upside/Downside** | **-44.2%** |
+| IC 90% Monte Carlo | $89.35 - $224.55 |
 
-### Raccomandazione: **MODERATE SELL**
+### Raccomandazione: **STRONG SELL**
 
-> Il titolo appare moderatamente sopravvalutato rispetto al valore intrinseco.
+> Il titolo appare fortemente sopravvalutato rispetto ai fondamentali.
 
 ## 9. Fattori di Rischio e Considerazioni
 
