@@ -30,8 +30,7 @@ data/cache/*.csv
 !data/cache/.gitkeep
 
 # Output generati (report)
-output/markdown/*.md
-output/pdf/*.pdf
+
 
 # Log operativi
 data/logs/*.log
