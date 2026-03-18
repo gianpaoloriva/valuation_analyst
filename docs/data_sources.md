@@ -2,38 +2,41 @@
 
 ## 1. Massive.com (Dati Aziendali)
 
-**URL**: https://massive.com
+**URL**: [https://massive.com](https://massive.com)
 **Tipo**: API REST con autenticazione Bearer token
 **Configurazione**: `MASSIVE_API_KEY` in `.env`
 
-### Dati Disponibili
+### Endpoint Utilizzati
 
 | Categoria | Endpoint | Descrizione |
-|-----------|----------|-------------|
-| Profilo | `/profile/{ticker}` | Info azienda, settore, market cap |
-| Conto Economico | `/income-statement/{ticker}` | Ricavi, EBIT, utile netto |
-| Stato Patrimoniale | `/balance-sheet/{ticker}` | Attivo, passivo, equity |
-| Cash Flow | `/cash-flow-statement/{ticker}` | CapEx, D&A, variazione WC |
-| Ratios | `/ratios/{ticker}` | P/E, P/B, ROE, margini |
-| Quotazioni | `/quote/{ticker}` | Prezzo corrente, volume |
-| Storico Prezzi | `/historical-price/{ticker}` | OHLC giornaliero |
-| Treasury | `/treasury` | Yield titoli di stato |
+| --- | --- | --- |
+| Profilo | `/v3/reference/tickers/{ticker}` | Info azienda, market cap, shares |
+| Prezzo | `/v2/aggs/ticker/{ticker}/prev` | Prezzo di chiusura |
+| Treasury | `/fed/v1/treasury-yields` | Rendimento US 10Y (risk-free rate) |
+| Fondamentali | `/stocks/financials/v1/*` | Income, balance, cash flow (piano premium) |
 
 ### Uso nel Progetto
-- `tools/massive_client.py`: Client wrapper
-- `tools/market_data.py`: Dati di mercato
-- `tools/fundamentals.py`: Dati fondamentali
+
+- `tools/fetch_dati.py`: modulo principale per il recupero dati
+  - Dati di mercato (prezzo, market cap, shares): sempre live
+  - Fondamentali: live se piano premium, altrimenti fallback da `configs/{TICKER}.json`
+
+### Fallback
+
+Se l'API non fornisce i fondamentali (piano free), il sistema usa i valori
+nella sezione `fondamentali_fallback` del config JSON del ticker. I valori
+sono in milioni USD e vanno aggiornati manualmente dall'analista.
 
 ## 2. Dataset Damodaran (Parametri di Settore)
 
-**URL**: https://pages.stern.nyu.edu/~adamodar/
+**URL**: [https://pages.stern.nyu.edu/~adamodar/](https://pages.stern.nyu.edu/~adamodar/)
 **Tipo**: File Excel (.xls/.xlsx) scaricabili
-**Cache**: `data/cache/` (TTL 7 giorni)
+**Cache**: `data/cache/` (TTL configurabile, default 24 ore)
 
 ### Dataset Disponibili
 
 | Dataset | File | Contenuto |
-|---------|------|-----------|
+| --- | --- | --- |
 | Beta per Settore | Betas.xls | Beta unlevered/levered, D/E, tax rate |
 | ERP e CRP | ctryprem.xlsx | Risk premium per paese |
 | WACC per Settore | wacc.xlsx | WACC e componenti |
@@ -42,45 +45,50 @@
 | P/B per Settore | pbvdata.xlsx | Price-to-Book |
 | Price/Sales | psdata.xlsx | Revenue multiples |
 | Margini | margin.xlsx | Margini operativi e netti |
-| ROE | roe.xlsx | Return on Equity |
-| CapEx | capex.xlsx | CapEx e D&A per settore |
-| Dividendi | divfund.xlsx | Payout e dividend yield |
-| Tax Rate | taxrate.xlsx | Aliquote effettive |
 
 ### Uso nel Progetto
-- `tools/damodaran_data.py`: Download e parsing
-- `tools/data_cache.py`: Gestione cache
-- `utils/excel_parser.py`: Parsing Excel
+
+- `tools/damodaran_data.py`: download e parsing dei dataset
+- `tools/data_cache.py`: gestione cache con TTL
+- `utils/excel_parser.py`: parsing file Excel
 
 ### Aggiornamento
+
 I dataset Damodaran vengono aggiornati tipicamente a gennaio di ogni anno.
-Lo skill `/fetch-damodaran-data` scarica e aggiorna i dataset.
+La skill `/fetch-damodaran-data` scarica e aggiorna i dataset nella cache.
 
-## 3. Dati Sample (per Demo)
+## 3. Configurazione Analista (configs/)
 
-**Percorso**: `data/samples/`
+**Percorso**: `configs/{TICKER}.json`
 
-| File | Contenuto |
-|------|-----------|
-| `apple_financials.json` | Dati finanziari Apple (3 anni) |
-| `sample_comparables.json` | Comparabili settore Tech (7 aziende) |
+Ogni file contiene i parametri decisi dall'analista che non sono
+recuperabili automaticamente da API:
 
-Questi file sono committati nel repo e usati dai demo scripts.
+- Crescita attesa (alta e stabile)
+- Rating creditizio
+- Comparabili con i loro multipli
+- Parametri sensitivity e scenari
+- Rischi qualitativi
+- Fondamentali di fallback
+
+Vedere `configs/_template.json` per la struttura completa documentata.
 
 ## Flusso Dati Completo
 
-```
-┌───────────┐     ┌─────────────────┐     ┌──────────────┐
-│Massive.com│────▶│ massive_client  │────▶│   Company    │
-│  (API)    │     │ market_data     │     │  dataclass   │
-│           │     │ fundamentals    │     │              │
-└───────────┘     └─────────────────┘     └──────┬───────┘
-                                                  │
-┌───────────┐     ┌─────────────────┐            │
-│ Damodaran │────▶│ damodaran_data  │────▶ Tools ◀┘
-│ (Excel)   │     │ excel_parser    │     (calcoli)
-│           │     │ data_cache      │        │
-└───────────┘     └─────────────────┘        │
-                                              ▼
-                                     ValuationResult
+```text
++------------+     +------------------+
+| Massive.com| --> | tools/fetch_dati |--+
+|  (API)     |     | (live + fallback)|  |
++------------+     +------------------+  |
+                                         v
++------------+     +------------------+  TOOLS
+| Damodaran  | --> | damodaran_data   |-->(calcoli)
+| (Excel)    |     | data_cache       |  |
++------------+     +------------------+  |
+                                         v
++------------+                     Report .md
+|  configs/  | --> run_analysis.py --> output/markdown/
+| {TICKER}.  |                     --> output/pdf/
+|   json     |
++------------+
 ```

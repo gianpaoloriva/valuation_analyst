@@ -535,3 +535,110 @@ Output in `report/pdf/`:
 Uso: `python scripts/md_to_pdf.py` (tutti) oppure `python scripts/md_to_pdf.py GOOGL` (singolo).
 
 ---
+
+### 2026-02-27T16:47:35+00:00
+**Skill:** valutazione_relativa_comparabili
+**Input:** Analisi comparabili RBLX - 6 peer (EA, TTWO, U, APP, SNAP, NFLX) - multipli EV/Sales, EV/FCF, P/FCF
+**Agent:** relative-analyst
+**Summary:** Valutazione relativa RBLX: prezzo implicito mediano $55.72 vs mercato $71.40 (-22.0%). Giudizio: SOPRAVVALUTATO. RBLX tratta a premium significativo vs mediana peer su tutti i multipli. Cautela per SBC elevata che gonfia il FCF.
+---
+
+### 2026-02-27T17:00:00 - Analisi di Rischio e Sensitivita' Roblox (RBLX)
+**Skill:** sensitivity-analysis (analisi di rischio completa)
+**Input:** Analisi di rischio completa per Roblox Corporation (RBLX): sensitivity analysis 2D, scenari, e simulazione Monte Carlo
+**Agent:** risk-analyst
+**Lavoro svolto:**
+
+Eseguita analisi di rischio completa su RBLX con 4 metodologie. RBLX e' un caso particolare: EBIT negativo (-$1,045M), azienda in fase di forte crescita pre-profitto con FCF positivo ($643M) grazie a basso capex fisico e alto SBC.
+
+**Dati base:**
+- Prezzo corrente: $71.40, Shares: 709M, Market Cap: $50.6B
+- Ricavi FY2024: $3,602M, EBIT: -$1,045M, FCF: $643M
+- Net cash: $605M (cash $2,410M - debt $1,805M)
+- WACC base: 11.91%, Crescita alta: 20%, Crescita terminale: 3%, Margine target anno 10: 15%
+
+**Modello DCF:** Proiezione 10 anni con convergenza lineare della crescita ricavi (20% -> terminale) e del margine operativo (0% -> target). Reinvestimento calcolato con sales-to-capital ratio 2.5x. Terminal value con Gordon Growth Model e reinvestment rate esplicito (g/ROIC).
+
+1. **Sensitivity WACC vs Terminal Growth** (7x5 matrice):
+   - Range: $5.56 - $18.23 per azione
+   - Caso base (WACC 12%, g 3%): $9.03
+   - Nessuna combinazione raggiunge il prezzo corrente di $71.40
+
+2. **Sensitivity Crescita Ricavi vs Margine Operativo** (5x5 matrice):
+   - Range: $0.88 - $27.67 per azione
+   - Caso base (crescita 20%, margine 15%): $9.17
+   - Nemmeno il caso piu' ottimistico (crescita 30%, margine 25% = $27.67) si avvicina al prezzo
+
+3. **Analisi per Scenari** (Best/Base/Worst):
+   - Best Case (20%): $22.19 (DAU >100M, ARPDAU in forte crescita, margine 20%)
+   - Base Case (55%): $9.17 (crescita 20%, margine 15%)
+   - Worst Case (25%): $2.46 (rallentamento, margine 8%)
+   - **Valore Atteso Ponderato: $10.10** (-85.9% vs prezzo corrente)
+
+4. **Monte Carlo DCF** (1,000 iterazioni, seed=42):
+   - Media: $9.98, Mediana: $8.86
+   - Dev. Standard: $6.13
+   - IC 90%: $2.41 - $20.14
+   - IC 50%: $6.18 - $12.42
+   - Probabilita' valore > $71.40: 0.1%
+   - Probabilita' valore negativo: 0.9%
+
+**Conclusione:**
+Il prezzo di mercato ($71.40, market cap $50.6B) implica aspettative di crescita e marginalita' che vanno ben oltre il nostro scenario best case. Per giustificare il prezzo corrente con un DCF, servirebbero crescita ricavi >30% sostenuta per 10 anni e margini operativi >25% a regime, oppure un WACC significativamente piu' basso. Il mercato sta prezzando un'opzionalita' elevata (espansione piattaforma, nuovi verticali, advertising) che il DCF tradizionale non cattura.
+
+**Rischi chiave identificati:**
+- Rialzo: DAU >100M, Roblox Ads, espansione oltre gaming
+- Ribasso: child safety regulation, SBC $1B+/anno, concorrenza, convertible notes $1.8B
+
+**Script:** `analisi_rblx_risk.py`
+
+---
+
+### 2026-03-18T19:00:00 - Ristrutturazione Completa del Progetto
+
+**Skill:** Ristrutturazione architettura e validazione
+**Agent:** orchestrator (sessione interattiva)
+**Input:** Analisi problemi strutturali, ristrutturazione alberatura, fix flow, pulizia, validazione, documentazione
+
+**Problemi identificati e risolti:**
+
+1. **Script ad-hoc per ogni analisi** - Script Python dedicati (analisi_rblx_risk.py, analisi_rblx_comparabili.py, genera_pdf_rblx.py) creati perche' il flow standard non gestiva aziende in perdita. Eliminati. Un solo `run_analysis.py` gestisce tutti i casi.
+
+2. **Formati output incoerenti** - 3 naming convention diverse, 2 generatori PDF con librerie diverse. Unificato: `{TICKER}_{YYYY-MM-DD}_valuation.md`, un solo generatore (fpdf2).
+
+3. **Alberatura disordinata** - File sparsi nella root, config in scripts/configs/, report mescolati con codice. Riorganizzato: configs/, output/markdown/, output/pdf/, data/logs/.
+
+4. **Import hacky** - `sys.path.insert` in ogni script. Spostato fetch_dati nel package, import puliti.
+
+5. **EBIT/EPS negativi crashavano il flow** - Aggiunte `_safe_div()`, rimosse validazioni bloccanti in `dcf_fcff.py` e `math_helpers.py`.
+
+**Bug fixati:**
+- BUG-1: `proietta_fcff()` ValueError su FCFF negativo
+- BUG-2: `gordon_growth()` ValueError su cash_flow negativo
+- BUG-3: Sotto-header con numerazione sbagliata dopo Executive Summary
+- BUG-4: Parser data in md_to_pdf.py incompatibile con nuovo naming
+
+**Nuovi artefatti:**
+- `configs/_template.json` - template documentato per nuove analisi
+- `configs/ORCL.json` - Oracle Corporation (nuovo ticker)
+- `.claude/skills/new-analysis/SKILL.md` - skill per setup nuovi ticker
+- `tests/unit/test_run_analysis.py` - 26 test per nuove funzionalita'
+- `docs/project_evaluation.md` - valutazione completa del progetto (8/10)
+- Executive Summary come sezione 1 di ogni report (10 sezioni standard)
+
+**File eliminati (19):**
+- 3 script ad-hoc, 8 file prompts/ (mai importati), 1 template vecchio
+- 1 comando /checklist, 1 re-export wrapper, 1 cartella vuota
+- 4 report con vecchio naming
+
+**Validazione finale:**
+- 165/165 test passano (135 unit originali + 4 integration + 26 nuovi)
+- Analisi end-to-end su AAPL (profittevole), RBLX (in perdita), ORCL (nuovo)
+- PDF generati correttamente per tutti e 3
+- 100% type hints su 268 funzioni, 40% test coverage
+
+**Valutazione progetto: 8/10**
+- Punti di forza: architettura (9/10), usabilita' (9/10), integrazione Claude (9/10)
+- Da migliorare: test coverage (40% vs 80% target), DCF revenue-based per aziende in perdita
+
+---

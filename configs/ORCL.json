@@ -1,0 +1,95 @@
+{
+  "ticker": "ORCL",
+  "erp": 0.055,
+  "rating_credito": "BBB+",
+  "crescita_alta": 0.12,
+  "crescita_stabile": 0.025,
+  "anni_alta": 5,
+  "anni_transizione": 5,
+
+  "comparabili": [
+    {
+      "ticker": "MSFT", "nome": "Microsoft Corporation", "settore": "Enterprise Software / Cloud",
+      "market_cap": 3083000, "pe_ratio": 31.7, "ev_ebitda": 22.7,
+      "pb_ratio": 11.5, "ev_sales": 11.7, "ev_ebit": 26.0,
+      "margine_operativo": 0.45, "crescita_ricavi": 0.16, "paese": "US"
+    },
+    {
+      "ticker": "SAP", "nome": "SAP SE", "settore": "Enterprise Software / ERP",
+      "market_cap": 310000, "pe_ratio": 42.0, "ev_ebitda": 28.0,
+      "pb_ratio": 6.5, "ev_sales": 9.5, "ev_ebit": 35.0,
+      "margine_operativo": 0.22, "crescita_ricavi": 0.10, "paese": "DE"
+    },
+    {
+      "ticker": "CRM", "nome": "Salesforce Inc.", "settore": "Enterprise Software / CRM",
+      "market_cap": 310000, "pe_ratio": 48.0, "ev_ebitda": 26.0,
+      "pb_ratio": 4.8, "ev_sales": 9.2, "ev_ebit": 32.0,
+      "margine_operativo": 0.22, "crescita_ricavi": 0.11, "paese": "US"
+    },
+    {
+      "ticker": "IBM", "nome": "International Business Machines", "settore": "Enterprise Software / Consulting",
+      "market_cap": 230000, "pe_ratio": 28.0, "ev_ebitda": 15.5,
+      "pb_ratio": 8.2, "ev_sales": 4.0, "ev_ebit": 18.0,
+      "margine_operativo": 0.18, "crescita_ricavi": 0.03, "paese": "US"
+    },
+    {
+      "ticker": "INTU", "nome": "Intuit Inc.", "settore": "Enterprise Software / FinTech",
+      "market_cap": 180000, "pe_ratio": 55.0, "ev_ebitda": 35.0,
+      "pb_ratio": 12.0, "ev_sales": 12.5, "ev_ebit": 40.0,
+      "margine_operativo": 0.27, "crescita_ricavi": 0.13, "paese": "US"
+    },
+    {
+      "ticker": "NOW", "nome": "ServiceNow Inc.", "settore": "Enterprise Software / ITSM",
+      "market_cap": 210000, "pe_ratio": 65.0, "ev_ebitda": 45.0,
+      "pb_ratio": 20.0, "ev_sales": 18.0, "ev_ebit": 50.0,
+      "margine_operativo": 0.25, "crescita_ricavi": 0.23, "paese": "US"
+    }
+  ],
+
+  "sensitivity": {
+    "wacc_range": [0.07, 0.08, 0.085, 0.09, 0.095, 0.10, 0.11],
+    "growth_range": [0.015, 0.020, 0.025, 0.030, 0.035],
+    "crescita_range": [0.05, 0.08, 0.10, 0.12, 0.15],
+    "margine_range": [0.25, 0.28, 0.30, 0.33, 0.36]
+  },
+
+  "scenari": {
+    "upside_pct": 0.25,
+    "downside_pct": 0.20,
+    "prob_best": 0.20,
+    "prob_base": 0.55,
+    "prob_worst": 0.25,
+    "desc_best": "Cloud (OCI) supera il 20% di quota IaaS, AI su database autonomo accelera, margini in espansione (+25%)",
+    "desc_base": "Crescita cloud 12-15%, margini stabili, integrazione Cerner completata",
+    "desc_worst": "Rallentamento spesa IT enterprise, perdita quote cloud vs AWS/Azure/GCP, debito elevato (-20%)"
+  },
+
+  "monte_carlo": {
+    "wacc_std": 0.01,
+    "crescita_alta_std": 0.03
+  },
+
+  "rischi_rialzo": [
+    "Oracle Cloud Infrastructure (OCI) guadagna quota nel mercato IaaS",
+    "Autonomous Database e AI generativa su cloud attraggono nuovi clienti",
+    "Integrazione Cerner genera sinergie nel settore healthcare",
+    "Transizione SaaS migliora la ricorrenza dei ricavi e i margini",
+    "Buyback aggressivi continuano a ridurre le azioni in circolazione"
+  ],
+  "rischi_ribasso": [
+    "Debito elevato (~$88B) limita la flessibilita' finanziaria",
+    "Concorrenza intensa nel cloud da AWS, Azure e GCP",
+    "Rallentamento della spesa IT enterprise in scenario recessivo",
+    "Rischio di esecuzione sull'integrazione Cerner ($28B acquisizione)",
+    "Dipendenza dal database on-premise in declino strutturale",
+    "CapEx crescente per data center senza garanzia di ritorni"
+  ],
+
+  "fondamentali_fallback": {
+    "ricavi": 56069.0, "ebit": 17631.0, "ebitda": 23500.0,
+    "utile_netto": 11327.0, "total_debt": 88437.0,
+    "cash": 12039.0, "book_value_equity": 12828.0,
+    "capex": 9272.0, "deprezzamento": 5869.0, "delta_wc": 1500.0,
+    "tax_rate": 0.19, "beta_levered": 1.08
+  }
+}

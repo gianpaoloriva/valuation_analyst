@@ -74,7 +74,8 @@ def proietta_fcff(
     Parametri
     ---------
     fcff_base : float
-        FCFF dell'anno 0 (anno base, non proiettato). Deve essere > 0.
+        FCFF dell'anno 0 (anno base, non proiettato). Puo' essere negativo
+        per aziende in perdita (il DCF proiettera' la convergenza a profitto).
     tassi_crescita : list[float]
         Lista dei tassi di crescita, uno per ogni anno di proiezione.
     wacc : float
@@ -85,10 +86,6 @@ def proietta_fcff(
     list[ProiezioneCashFlow]
         Lista di proiezioni annuali con flussi scontati.
     """
-    if fcff_base <= 0:
-        raise ValueError(
-            f"Il FCFF base deve essere positivo (ricevuto: {fcff_base})."
-        )
     if not tassi_crescita:
         raise ValueError("La lista dei tassi di crescita non puo' essere vuota.")
 

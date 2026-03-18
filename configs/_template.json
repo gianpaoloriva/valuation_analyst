@@ -1,0 +1,61 @@
+{
+  "_doc": "Template per la configurazione di una nuova analisi. Copiare e rinominare come {TICKER}.json",
+
+  "ticker": "TICKER",
+  "erp": 0.055,
+  "rating_credito": "BBB",
+  "crescita_alta": 0.10,
+  "crescita_stabile": 0.025,
+  "anni_alta": 5,
+  "anni_transizione": 5,
+
+  "comparabili": [
+    {
+      "ticker": "COMP1", "nome": "Comparabile 1", "settore": "Settore",
+      "market_cap": 0, "pe_ratio": null, "ev_ebitda": null,
+      "pb_ratio": null, "ev_sales": null, "ev_ebit": null,
+      "margine_operativo": null, "crescita_ricavi": null, "paese": "US"
+    }
+  ],
+
+  "sensitivity": {
+    "wacc_range": [0.07, 0.08, 0.09, 0.10, 0.11, 0.12, 0.13],
+    "growth_range": [0.015, 0.020, 0.025, 0.030, 0.035],
+    "crescita_range": [0.03, 0.05, 0.08, 0.10, 0.15],
+    "margine_range": [0.15, 0.20, 0.25, 0.30, 0.35]
+  },
+
+  "scenari": {
+    "upside_pct": 0.25,
+    "downside_pct": 0.20,
+    "prob_best": 0.20,
+    "prob_base": 0.55,
+    "prob_worst": 0.25,
+    "desc_best": "Descrizione scenario ottimistico",
+    "desc_base": "Descrizione scenario base",
+    "desc_worst": "Descrizione scenario pessimistico"
+  },
+
+  "monte_carlo": {
+    "wacc_std": 0.01,
+    "crescita_alta_std": 0.03
+  },
+
+  "rischi_rialzo": [
+    "Rischio al rialzo 1",
+    "Rischio al rialzo 2"
+  ],
+  "rischi_ribasso": [
+    "Rischio al ribasso 1",
+    "Rischio al ribasso 2"
+  ],
+
+  "fondamentali_fallback": {
+    "_doc": "Usati se l'API Massive.com non fornisce i fondamentali (piano free)",
+    "ricavi": 0.0, "ebit": 0.0, "ebitda": 0.0,
+    "utile_netto": 0.0, "total_debt": 0.0,
+    "cash": 0.0, "book_value_equity": 0.0,
+    "capex": 0.0, "deprezzamento": 0.0, "delta_wc": 0.0,
+    "tax_rate": 0.21, "beta_levered": 1.0
+  }
+}

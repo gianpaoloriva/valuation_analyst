@@ -1,0 +1,98 @@
+{
+  "ticker": "RBLX",
+  "erp": 0.055,
+  "rating_credito": "BB",
+  "crescita_alta": 0.20,
+  "crescita_stabile": 0.03,
+  "anni_alta": 5,
+  "anni_transizione": 5,
+
+  "comparabili": [
+    {
+      "ticker": "EA", "nome": "Electronic Arts Inc.", "settore": "Interactive Entertainment",
+      "market_cap": 50220, "pe_ratio": 75.19, "ev_ebitda": 36.83,
+      "pb_ratio": 8.18, "ev_sales": 6.78, "ev_ebit": 48.18,
+      "margine_operativo": 0.14, "crescita_ricavi": 0.04, "paese": "US"
+    },
+    {
+      "ticker": "TTWO", "nome": "Take-Two Interactive Software", "settore": "Interactive Entertainment",
+      "market_cap": 39320, "pe_ratio": null, "ev_ebitda": 48.73,
+      "pb_ratio": 11.29, "ev_sales": 6.14, "ev_ebit": null,
+      "margine_operativo": -0.007, "crescita_ricavi": 0.14, "paese": "US"
+    },
+    {
+      "ticker": "U", "nome": "Unity Software Inc.", "settore": "Game Engine / Platform",
+      "market_cap": 8060, "pe_ratio": null, "ev_ebitda": null,
+      "pb_ratio": 2.62, "ev_sales": 4.73, "ev_ebit": null,
+      "margine_operativo": -0.25, "crescita_ricavi": 0.17, "paese": "US"
+    },
+    {
+      "ticker": "APP", "nome": "AppLovin Corporation", "settore": "Mobile Gaming / AdTech",
+      "market_cap": 144720, "pe_ratio": 44.02, "ev_ebitda": 35.38,
+      "pb_ratio": 70.51, "ev_sales": 27.60, "ev_ebit": 36.43,
+      "margine_operativo": 0.76, "crescita_ricavi": 0.27, "paese": "US"
+    },
+    {
+      "ticker": "SNAP", "nome": "Snap Inc.", "settore": "Social Media / UGC Platform",
+      "market_cap": 8630, "pe_ratio": null, "ev_ebitda": null,
+      "pb_ratio": 3.95, "ev_sales": 1.70, "ev_ebit": null,
+      "margine_operativo": -0.09, "crescita_ricavi": 0.09, "paese": "US"
+    },
+    {
+      "ticker": "NFLX", "nome": "Netflix Inc.", "settore": "Digital Entertainment",
+      "market_cap": 450000, "pe_ratio": 52.0, "ev_ebitda": 35.0,
+      "pb_ratio": 18.0, "ev_sales": 11.5, "ev_ebit": 38.0,
+      "margine_operativo": 0.28, "crescita_ricavi": 0.16, "paese": "US"
+    }
+  ],
+
+  "sensitivity": {
+    "wacc_range": [0.09, 0.10, 0.11, 0.12, 0.13, 0.14, 0.15],
+    "growth_range": [0.020, 0.025, 0.030, 0.035, 0.040],
+    "crescita_range": [0.10, 0.15, 0.20, 0.25, 0.30],
+    "margine_range": [0.05, 0.10, 0.15, 0.20, 0.25]
+  },
+
+  "scenari": {
+    "upside_pct": 0.35,
+    "downside_pct": 0.30,
+    "prob_best": 0.20,
+    "prob_base": 0.55,
+    "prob_worst": 0.25,
+    "desc_best": "DAU supera 100M, monetizzazione ARPDAU in forte crescita, margini operativi positivi (+35%)",
+    "desc_base": "crescita ricavi 20%, graduale miglioramento margini, path to profitability entro 2027",
+    "desc_worst": "rallentamento DAU, pressione regolamentare child safety, margini restano negativi (-30%)"
+  },
+
+  "monte_carlo": {
+    "wacc_std": 0.015,
+    "crescita_alta_std": 0.05
+  },
+
+  "rischi_rialzo": [
+    "DAU supera 100M con espansione in nuovi mercati (Asia, LatAm)",
+    "Monetizzazione advertising in forte crescita (Roblox Ads)",
+    "Espansione oltre il gaming: shopping, concerti, education",
+    "Margini operativi raggiungono il positivo prima del previsto",
+    "Partnership con brand globali per esperienze immersive"
+  ],
+  "rischi_ribasso": [
+    "Pressione regolamentare sulla sicurezza dei minori (child safety)",
+    "Rallentamento della crescita DAU nei mercati maturi",
+    "Stock-based compensation elevata ($1B+/anno) diluisce gli azionisti",
+    "Concorrenza da Fortnite (Epic), Minecraft (MSFT), Meta Horizon",
+    "Difficolta' nel monetizzare utenti piu' giovani (<13 anni)",
+    "Convertible notes ($1.8B) con rischio di conversione diluente"
+  ],
+
+  "fondamentali_fallback": {
+    "ricavi": 3602.0, "ebit": -1045.0, "ebitda": -837.0,
+    "utile_netto": -935.0, "total_debt": 1805.0,
+    "cash": 2410.0, "book_value_equity": 209.0,
+    "capex": 180.0, "deprezzamento": 209.0, "delta_wc": -481.0,
+    "tax_rate": 0.21, "beta_levered": 1.56,
+    "sbc": 1016.0, "fcf": 643.0, "ocf": 822.0,
+    "shares_outstanding": 709.0, "dau_milioni": 85.3,
+    "bookings": 4436.0
+  }
+}

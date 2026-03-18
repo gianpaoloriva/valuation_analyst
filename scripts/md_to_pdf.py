@@ -14,8 +14,8 @@ from fpdf import FPDF
 from fpdf.enums import XPos, YPos
 
 ROOT = Path(__file__).resolve().parent.parent
-REPORT_DIR = ROOT / "report"
-PDF_DIR = REPORT_DIR / "pdf"
+REPORT_DIR = ROOT / "output" / "markdown"
+PDF_DIR = ROOT / "output" / "pdf"
 
 # ---------------------------------------------------------------------------
 # Palette colori
@@ -294,12 +294,23 @@ def md_to_pdf(md_path: Path, pdf_path: Path) -> None:
     """Converte un file markdown in PDF con layout professionale."""
     lines = md_path.read_text(encoding="utf-8").splitlines()
 
-    # Estrai ticker dal nome file
-    ticker = md_path.name.split("_")[0]
+    # Estrai ticker e data dal nome file
+    # Supporta: AAPL_valuation_report_2026-02-19.md (vecchio)
+    #           AAPL_2026-03-18_valuation.md (nuovo)
+    parts = md_path.stem.split("_")
+    ticker = parts[0]
+    # Cerca una parte che sembra una data (YYYY-MM-DD)
+    report_date = ""
+    for p in parts:
+        if len(p) == 10 and p[4] == "-" and p[7] == "-":
+            report_date = p
+            break
+    if not report_date:
+        report_date = parts[-1]  # fallback
 
     pdf = ReportPDF(orientation="P", unit="mm", format="A4")
     pdf._ticker = ticker
-    pdf._report_date = md_path.name.split("_")[-1].replace(".md", "")
+    pdf._report_date = report_date
     pdf.set_auto_page_break(auto=True, margin=20)
     pdf.set_margins(left=18, top=18, right=18)
 
@@ -443,12 +454,16 @@ def md_to_pdf(md_path: Path, pdf_path: Path) -> None:
 def main() -> None:
     tickers = [t.upper() for t in sys.argv[1:]] if len(sys.argv) > 1 else []
 
-    md_files = sorted(REPORT_DIR.glob("*_valuation_report_*.md"))
+    # Supporta entrambi i naming: vecchio (*_valuation_report_*.md) e nuovo (*_*_valuation.md)
+    md_files = sorted(
+        list(REPORT_DIR.glob("*_valuation_report_*.md"))
+        + list(REPORT_DIR.glob("*_*_valuation.md"))
+    )
     if tickers:
         md_files = [f for f in md_files if any(f.name.startswith(t) for t in tickers)]
 
     if not md_files:
-        print("Nessun report .md trovato in report/")
+        print("Nessun report .md trovato in output/markdown/")
         sys.exit(1)
 
     PDF_DIR.mkdir(parents=True, exist_ok=True)
@@ -456,7 +471,7 @@ def main() -> None:
         pdf_file = PDF_DIR / md_file.with_suffix(".pdf").name
         md_to_pdf(md_file, pdf_file)
         size = pdf_file.stat().st_size
-        print(f"report/pdf/{pdf_file.name} ({size:,} bytes)")
+        print(f"output/pdf/{pdf_file.name} ({size:,} bytes)")
 
 
 if __name__ == "__main__":

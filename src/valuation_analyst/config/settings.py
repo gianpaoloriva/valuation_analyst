@@ -23,8 +23,14 @@ DATA_DIR: Path = ROOT_DIR / "data"
 CACHE_DIR: Path = DATA_DIR / "cache"
 """Percorso della directory per i file di cache (dati Damodaran, API, ecc.)."""
 
-REPORTS_DIR: Path = ROOT_DIR / "report"
-"""Percorso della directory dove vengono salvati i report di valutazione."""
+REPORTS_DIR: Path = ROOT_DIR / "output" / "markdown"
+"""Percorso della directory dove vengono salvati i report di valutazione (.md)."""
+
+PDF_DIR: Path = ROOT_DIR / "output" / "pdf"
+"""Percorso della directory dove vengono salvati i report PDF."""
+
+CONFIGS_DIR: Path = ROOT_DIR / "configs"
+"""Percorso della directory con i file di configurazione per le analisi."""
 
 LOGS_DIR: Path = DATA_DIR / "logs"
 """Percorso della directory per i file di log."""
@@ -47,7 +53,7 @@ DAMODARAN_BASE_URL: str = "https://pages.stern.nyu.edu/~adamodar/"
 
 # --- Log dei prompt ---
 
-PROMPT_LOG_PATH: Path = ROOT_DIR / "prompt_log.md"
+PROMPT_LOG_PATH: Path = LOGS_DIR / "prompt_log.md"
 """Percorso del file di log dei prompt utilizzati durante l'analisi."""
 
 # --- Impostazioni di cache ---
@@ -70,5 +76,5 @@ def assicura_directory() -> None:
     Viene invocata all'avvio per garantire che tutte le
     directory necessarie al funzionamento siano presenti.
     """
-    for directory in (DATA_DIR, CACHE_DIR, REPORTS_DIR, LOGS_DIR, SAMPLES_DIR):
+    for directory in (DATA_DIR, CACHE_DIR, REPORTS_DIR, PDF_DIR, LOGS_DIR, SAMPLES_DIR, CONFIGS_DIR):
         directory.mkdir(parents=True, exist_ok=True)

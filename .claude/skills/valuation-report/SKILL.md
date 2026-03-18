@@ -31,8 +31,15 @@ Segui il flusso definito nell'orchestrator:
 6. (Se privata) private-valuation -> Sconti/premi
 
 ### 3. Generazione Report
-Usa il template in `templates/report_template.md` per generare il report.
-Salva in `report/{ticker}_{data}_valuation.md`.
+Esegui `python scripts/run_analysis.py {TICKER}`.
+Il report viene salvato in `output/markdown/{TICKER}_{data}_valuation.md`.
 
-### 4. Logging
-Logga ogni fase in prompt_log.md.
+**IMPORTANTE**: NON creare script .py ad-hoc. Usare SEMPRE run_analysis.py.
+Il config deve esistere in `configs/{TICKER}.json` prima di lanciare l'analisi.
+
+### 4. Generazione PDF
+Esegui `python scripts/md_to_pdf.py {TICKER}`.
+PDF salvato in `output/pdf/`.
+
+### 5. Logging
+Logga ogni fase in `data/logs/prompt_log.md`.

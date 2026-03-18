@@ -29,11 +29,9 @@ data/cache/*.xls
 data/cache/*.csv
 !data/cache/.gitkeep
 
-# Report generati
-data/reports/*.md
-data/reports/*.html
-data/reports/*.pdf
-!data/reports/.gitkeep
+# Output generati (report)
+output/markdown/*.md
+output/pdf/*.pdf
 
 # Log operativi
 data/logs/*.log

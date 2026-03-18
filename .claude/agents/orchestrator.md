@@ -101,5 +101,13 @@ di dati tra loro e sintetizzare i risultati in un report finale coerente.
 ```
 
 ## Output Finale
-Il report finale va salvato in `report/` con nome:
-`{ticker}_{data}_valuation.md`
+Il report finale va salvato in `output/markdown/` con nome:
+`{TICKER}_{YYYY-MM-DD}_valuation.md`
+
+PDF corrispondente in `output/pdf/`.
+
+## Configurazione
+I parametri dell'analista per ogni ticker sono in `configs/{TICKER}.json`.
+Usare `configs/_template.json` come base per nuove analisi.
+
+**MAI creare script .py ad-hoc** per singole analisi. Usare `scripts/run_analysis.py`.

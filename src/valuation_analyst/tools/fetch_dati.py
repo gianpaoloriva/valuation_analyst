@@ -1,7 +1,7 @@
-"""Helper per recuperare dati finanziari live da Massive.com.
+"""Modulo per recuperare dati finanziari live da Massive.com.
 
-Centralizza il fetch dei dati necessari per gli script di analisi,
-convertendo i valori nelle unita' usate dagli script (milioni USD).
+Centralizza il fetch dei dati necessari per le analisi,
+convertendo i valori nelle unita' usate dal toolkit (milioni USD).
 
 Endpoint utilizzati (API Massive.com):
 - /v3/reference/tickers/{ticker}  -> profilo, market_cap, shares
@@ -14,16 +14,13 @@ from __future__ import annotations
 import json
 import logging
 import os
-import sys
 from pathlib import Path
 from typing import Any
 
 import httpx
 from dotenv import load_dotenv
 
-# Assicura che src/ sia nel path
-ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "src"))
+from valuation_analyst.config.settings import CONFIGS_DIR
 
 load_dotenv()
 
@@ -104,11 +101,11 @@ def _fetch_fondamentali(
 
 
 def _carica_fallback(ticker: str) -> dict[str, Any] | None:
-    """Carica i fondamentali di fallback da scripts/configs/{TICKER}.json.
+    """Carica i fondamentali di fallback da configs/{TICKER}.json.
 
     Restituisce None se il file non esiste o non contiene fondamentali_fallback.
     """
-    config_path = ROOT / "scripts" / "configs" / f"{ticker.upper()}.json"
+    config_path = CONFIGS_DIR / f"{ticker.upper()}.json"
     if not config_path.exists():
         return None
     with open(config_path, encoding="utf-8") as f:
@@ -119,11 +116,11 @@ def _carica_fallback(ticker: str) -> dict[str, Any] | None:
 def fetch_dati_azienda(ticker: str) -> dict[str, Any]:
     """Recupera dati finanziari live da Massive.com per un dato ticker.
 
-    Usa gli endpoint REST corretti dell'API Massive.com. I dati di mercato
+    Usa gli endpoint REST dell'API Massive.com. I dati di mercato
     (prezzo, market cap, shares, risk-free rate) vengono sempre recuperati
     live. I dati fondamentali (income statement, balance sheet, cash flow)
     vengono recuperati live se il piano API lo consente, altrimenti si usano
-    i valori di fallback piu' recenti.
+    i valori di fallback dal config JSON.
 
     Parametri
     ---------
@@ -170,7 +167,6 @@ def fetch_dati_azienda(ticker: str) -> dict[str, Any]:
 
     # Market data live
     market_cap_abs = _safe_float(overview.get("market_cap"))
-    # weighted_shares_outstanding include tutte le classi di azioni
     shares_abs = _safe_float(overview.get("weighted_shares_outstanding"))
     if shares_abs == 0:
         shares_abs = _safe_float(overview.get("share_class_shares_outstanding"))
@@ -179,7 +175,6 @@ def fetch_dati_azienda(ticker: str) -> dict[str, Any]:
     market_cap = market_cap_abs / M
 
     if fondamentali is not None:
-        # --- Dati fondamentali LIVE dall'API ---
         print("  Fondamentali: LIVE da API")
         inc = fondamentali["income"]
         bal = fondamentali["balance"]
@@ -190,7 +185,6 @@ def fetch_dati_azienda(ticker: str) -> dict[str, Any]:
         ebitda = _safe_float(inc.get("ebitda")) / M
         utile_netto = _safe_float(inc.get("consolidated_net_income_loss")) / M
 
-        # Tax rate
         utile_ante = _safe_float(inc.get("income_before_income_taxes"))
         imposte = _safe_float(inc.get("income_taxes"))
         if utile_ante > 0 and imposte > 0:
@@ -198,30 +192,26 @@ def fetch_dati_azienda(ticker: str) -> dict[str, Any]:
         else:
             tax_rate = 0.21
 
-        # Balance sheet (i campi Massive sono snake_case)
         debt_current = _safe_float(bal.get("debt_current"))
         debt_lt = _safe_float(bal.get("long_term_debt_and_capital_lease_obligations"))
         total_debt = (debt_current + debt_lt) / M
         cash = _safe_float(bal.get("cash_and_equivalents")) / M
         book_value_equity = _safe_float(bal.get("total_equity")) / M
 
-        # Cash flow
         capex = abs(_safe_float(cf.get("purchase_of_property_plant_and_equipment"))) / M
         deprezzamento = _safe_float(cf.get("depreciation_depletion_and_amortization")) / M
         delta_wc_raw = _safe_float(cf.get("change_in_other_operating_assets_and_liabilities_net"))
         delta_wc = -delta_wc_raw / M
 
-        beta_levered = 1.0  # Non disponibile nei fondamentali, da sovrascrivere nello script
+        beta_levered = 1.0
 
     else:
-        # --- Fallback: dati fondamentali da config JSON ---
         fb = _carica_fallback(ticker)
         if fb is None:
             raise ValueError(
                 f"Fondamentali non disponibili dall'API per '{ticker}' "
                 f"e nessun dato di fallback configurato. "
-                f"Per usare questo ticker, aggiungi 'fondamentali_fallback' "
-                f"in scripts/configs/{ticker.upper()}.json "
+                f"Aggiungi 'fondamentali_fallback' in configs/{ticker.upper()}.json "
                 f"o aggiorna il piano API Massive.com."
             )
         print(f"  Fondamentali: FALLBACK (piano API non include /stocks/financials/*)")
@@ -239,44 +229,21 @@ def fetch_dati_azienda(ticker: str) -> dict[str, Any]:
         tax_rate = fb["tax_rate"]
         beta_levered = fb["beta_levered"]
 
-    # Valori derivati
     debito_netto = total_debt - cash
     enterprise_value = market_cap + debito_netto
     eps = utile_netto / shares_outstanding if shares_outstanding > 0 else 0.0
     bvps = book_value_equity / shares_outstanding if shares_outstanding > 0 else 0.0
 
     dati: dict[str, Any] = {
-        # Info aziendali
-        "nome": nome,
-        "settore": settore,
-        "paese": paese,
-        "valuta": valuta,
-        # Mercato (prezzo in USD, il resto in milioni)
-        "prezzo_corrente": prezzo,
-        "shares_outstanding": shares_outstanding,
+        "nome": nome, "settore": settore, "paese": paese, "valuta": valuta,
+        "prezzo_corrente": prezzo, "shares_outstanding": shares_outstanding,
         "market_cap": market_cap,
-        # Conto economico (milioni)
-        "ricavi": ricavi,
-        "ebit": ebit,
-        "ebitda": ebitda,
-        "utile_netto": utile_netto,
-        # Bilancio (milioni)
-        "total_debt": total_debt,
-        "cash": cash,
-        "book_value_equity": book_value_equity,
-        # Cash flow (milioni)
-        "capex": capex,
-        "deprezzamento": deprezzamento,
-        "delta_wc": delta_wc,
-        # Parametri
-        "tax_rate": tax_rate,
-        "beta_levered": beta_levered,
-        "risk_free_rate": risk_free,
-        # Derivati
-        "debito_netto": debito_netto,
-        "enterprise_value": enterprise_value,
-        "eps": eps,
-        "book_value_per_share": bvps,
+        "ricavi": ricavi, "ebit": ebit, "ebitda": ebitda, "utile_netto": utile_netto,
+        "total_debt": total_debt, "cash": cash, "book_value_equity": book_value_equity,
+        "capex": capex, "deprezzamento": deprezzamento, "delta_wc": delta_wc,
+        "tax_rate": tax_rate, "beta_levered": beta_levered, "risk_free_rate": risk_free,
+        "debito_netto": debito_netto, "enterprise_value": enterprise_value,
+        "eps": eps, "book_value_per_share": bvps,
     }
 
     print(f"  Prezzo: ${prezzo:.2f}")

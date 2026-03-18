@@ -18,6 +18,7 @@ python demos/01_cost_of_capital.py
 ```
 
 **Cosa fa**: Calcola il WACC per Apple Inc. usando:
+
 - Risk-free rate = 4.2% (US Treasury 10Y)
 - Beta bottom-up dal settore Technology
 - ERP = 5.5% (Damodaran)
@@ -32,11 +33,10 @@ python demos/02_dcf_valuation.py
 ```
 
 **Cosa fa**: Valutazione DCF FCFF di Apple con:
+
 - FCFF base calcolato dai dati finanziari
 - Modello 3 fasi (5+5+terminal)
 - Terminal value con Gordon Growth
-
-**Output atteso**: Valore per azione nell'intorno di $150-$200
 
 ## Demo 03: Comparable Analysis
 
@@ -45,7 +45,8 @@ python demos/03_comparable_analysis.py
 ```
 
 **Cosa fa**: Valutazione relativa usando:
-- 7 comparabili del settore Tech (da sample data)
+
+- 7 comparabili del settore Tech
 - Multipli: P/E, EV/EBITDA, P/B, EV/Sales
 - Statistiche e valore implicito
 
@@ -104,16 +105,31 @@ for f in demos/0*.py; do
 done
 ```
 
+## Analisi Completa con Dati Live
+
+Per un'analisi reale con dati live da Massive.com (richiede API key):
+
+```bash
+# Step 1: Crea il config (o usa /new-analysis in Claude Code)
+cp configs/_template.json configs/NVDA.json
+# Popola i parametri
+
+# Step 2: Esegui l'analisi
+python scripts/run_analysis.py NVDA
+
+# Step 3: Genera il PDF
+python scripts/md_to_pdf.py NVDA
+```
+
 ## Uso con Claude Code
 
-Oltre ai demo scripts Python, puoi usare le skill direttamente in Claude Code:
+Le skill sono invocabili direttamente in Claude Code:
 
+```text
+/new-analysis NVDA                # Setup config per nuovo ticker
+/valuation-report AAPL            # Report completo
+/cost-of-capital AAPL             # Solo WACC
+/dcf-valuation AAPL               # Solo DCF
+/comparable-analysis AAPL         # Solo multipli
+/sensitivity-analysis AAPL        # Solo risk analysis
 ```
-/cost-of-capital AAPL
-/dcf-valuation AAPL
-/comparable-analysis AAPL
-/valuation-report AAPL
-```
-
-Oppure usare gli agenti specializzati direttamente dalla conversazione:
-"Valuta Apple Inc. usando il DCF con FCFF"

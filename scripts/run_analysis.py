@@ -1,11 +1,15 @@
 """Script generico per analisi completa di un ticker.
 
-Legge i parametri dell'analista da scripts/configs/{TICKER}.json e i dati
-finanziari live da Massive.com, poi genera il report in report/.
+Legge i parametri dell'analista da configs/{TICKER}.json e i dati
+finanziari live da Massive.com, poi genera il report in output/markdown/.
+
+Gestisce sia aziende profittevoli che in perdita (EBIT/EPS negativi).
+
+Prerequisito: pip install -e . (dalla root del progetto)
 
 Uso:
     python scripts/run_analysis.py GOOGL
-    python scripts/run_analysis.py MSFT
+    python scripts/run_analysis.py RBLX
 """
 from __future__ import annotations
 
@@ -14,11 +18,7 @@ import sys
 from datetime import date
 from pathlib import Path
 
-# Assicura che src/ sia nel path
-ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "src"))
-
-from fetch_dati import fetch_dati_azienda
+from valuation_analyst.tools.fetch_dati import fetch_dati_azienda
 from valuation_analyst.tools.capm import calcola_costo_equity_dettagliato
 from valuation_analyst.tools.wacc import calcola_wacc_completo
 from valuation_analyst.tools.beta_estimation import beta_unlevered
@@ -31,10 +31,34 @@ from valuation_analyst.tools.sensitivity_table import (
 from valuation_analyst.tools.scenario_analysis import crea_scenari_standard, formatta_scenari
 from valuation_analyst.tools.monte_carlo import monte_carlo_dcf, formatta_monte_carlo, istogramma_ascii
 from valuation_analyst.models.comparable import Comparabile
+from valuation_analyst.config.settings import CONFIGS_DIR, REPORTS_DIR
 from valuation_analyst.utils.formatting import (
     formatta_valuta, formatta_percentuale, formatta_numero,
     formatta_miliardi, tabella_markdown,
 )
+
+ROOT = Path(__file__).resolve().parent.parent
+
+
+# ===========================================================================
+# HELPERS
+# ===========================================================================
+
+def _safe_div(numeratore: float, denominatore: float) -> float | None:
+    """Divisione sicura: restituisce None se il denominatore e' <= 0 o produce valori anomali."""
+    if denominatore <= 0:
+        return None
+    risultato = numeratore / denominatore
+    if abs(risultato) > 10_000:  # multiplo anomalo
+        return None
+    return risultato
+
+
+def _fmt_multiplo(valore: float | None) -> str:
+    """Formatta un multiplo, gestendo None."""
+    if valore is None:
+        return "N/A"
+    return f"{valore:.1f}"
 
 
 # ===========================================================================
@@ -42,11 +66,11 @@ from valuation_analyst.utils.formatting import (
 # ===========================================================================
 
 def carica_config(ticker: str) -> dict:
-    """Legge scripts/configs/{TICKER}.json e restituisce il dict."""
-    config_path = ROOT / "scripts" / "configs" / f"{ticker}.json"
+    """Legge configs/{TICKER}.json e restituisce il dict."""
+    config_path = CONFIGS_DIR / f"{ticker}.json"
     if not config_path.exists():
         print(f"ERRORE: file di configurazione non trovato: {config_path}")
-        print(f"Crea il file configs/{ticker}.json con i parametri dell'analista.")
+        print(f"Crea il file configs/{ticker}.json (vedi configs/_template.json).")
         sys.exit(1)
     with open(config_path, encoding="utf-8") as f:
         return json.load(f)
@@ -62,7 +86,13 @@ def costruisci_comparabili(config: dict) -> list[Comparabile]:
 # ===========================================================================
 
 def genera_report(dati: dict, config: dict) -> None:
-    """Calcola tutto e scrive il report .md in report/."""
+    """Calcola tutto e scrive il report .md in output/markdown/.
+
+    Gestisce aziende profittevoli e in perdita:
+    - Se EBIT <= 0: segnala che P/E e EV/EBITDA non sono applicabili
+    - Se FCFF <= 0: il DCF usa comunque il valore calcolato (puo' essere negativo)
+    - Divisioni per zero protette con _safe_div()
+    """
     ticker = config["ticker"]
     nome = dati["nome"]
     valuta = dati["valuta"]
@@ -98,6 +128,9 @@ def genera_report(dati: dict, config: dict) -> None:
     sc = config["scenari"]
     mc = config["monte_carlo"]
 
+    # Flag azienda in perdita
+    in_perdita = ebit <= 0 or utile_netto <= 0
+
     sezioni: list[str] = []
 
     # ==================================================================
@@ -112,9 +145,17 @@ def genera_report(dati: dict, config: dict) -> None:
     sezioni.append("")
 
     # ==================================================================
-    # SEZIONE 1: PANORAMICA AZIENDALE
+    # SEZIONE 1: EXECUTIVE SUMMARY (placeholder - compilata a fine report)
     # ==================================================================
-    sezioni.append("## 1. Panoramica Aziendale")
+    # L'executive summary viene inserita dopo aver calcolato tutti i valori.
+    # Segnaposto per la posizione nel documento.
+    indice_executive_summary = len(sezioni)
+    sezioni.append("")  # placeholder
+
+    # ==================================================================
+    # SEZIONE 2: PANORAMICA AZIENDALE
+    # ==================================================================
+    sezioni.append("## 2. Panoramica Aziendale")
     sezioni.append("")
     headers_overview = ["Indicatore", "Valore"]
     rows_overview = [
@@ -129,7 +170,7 @@ def genera_report(dati: dict, config: dict) -> None:
         ["EBITDA (TTM)", formatta_miliardi(ebitda * 1e6)],
         ["EBIT (TTM)", formatta_miliardi(ebit * 1e6)],
         ["Utile Netto (TTM)", formatta_miliardi(utile_netto * 1e6)],
-        ["EPS", formatta_valuta(eps, valuta)],
+        ["EPS", formatta_valuta(eps, valuta) if eps > 0 else f"{formatta_valuta(eps, valuta)} (negativo)"],
         ["Book Value/Share", formatta_valuta(book_value_per_share, valuta)],
         ["Debito Totale", formatta_miliardi(total_debt * 1e6)],
         ["Cassa e Investimenti", formatta_miliardi(cash * 1e6)],
@@ -137,19 +178,21 @@ def genera_report(dati: dict, config: dict) -> None:
         ["Rating", rating_credito],
         ["Beta", f"{beta_levered:.2f}"],
     ]
+    if in_perdita:
+        rows_overview.append(["**Nota**", "**Azienda attualmente in perdita operativa**"])
     sezioni.append(tabella_markdown(headers_overview, rows_overview))
     sezioni.append("")
 
     # ==================================================================
     # SEZIONE 2: COSTO DEL CAPITALE (WACC)
     # ==================================================================
-    sezioni.append("## 2. Costo del Capitale (WACC)")
+    sezioni.append("## 3. Costo del Capitale (WACC)")
     sezioni.append("")
-    sezioni.append("### 2.1 Costo dell'Equity (CAPM)")
+    sezioni.append("### 3.1 Costo dell'Equity (CAPM)")
     sezioni.append("")
 
     # Beta unlevered
-    rapporto_de = total_debt / market_cap
+    rapporto_de = total_debt / market_cap if market_cap > 0 else 0
     beta_u = beta_unlevered(beta_levered, tax_rate, rapporto_de)
 
     # Costo equity dettagliato
@@ -179,7 +222,7 @@ def genera_report(dati: dict, config: dict) -> None:
     sezioni.append("")
 
     # Costo del debito
-    sezioni.append("### 2.2 Costo del Debito")
+    sezioni.append("### 3.2 Costo del Debito")
     sezioni.append("")
     spread = spread_da_rating(rating_credito)
     kd_pre_tax = risk_free_rate + spread
@@ -197,7 +240,7 @@ def genera_report(dati: dict, config: dict) -> None:
     sezioni.append("")
 
     # WACC completo
-    sezioni.append("### 2.3 WACC")
+    sezioni.append("### 3.3 WACC")
     sezioni.append("")
     wacc_result = calcola_wacc_completo(
         risk_free_rate=risk_free_rate,
@@ -226,7 +269,7 @@ def genera_report(dati: dict, config: dict) -> None:
     # ==================================================================
     # SEZIONE 3: DCF FCFF
     # ==================================================================
-    sezioni.append("## 3. Valutazione DCF (FCFF)")
+    sezioni.append("## 4. Valutazione DCF (FCFF)")
     sezioni.append("")
 
     # Calcolo FCFF base
@@ -237,7 +280,14 @@ def genera_report(dati: dict, config: dict) -> None:
         deprezzamento=deprezzamento,
         delta_wc=delta_wc,
     )
-    sezioni.append("### 3.1 FCFF Base")
+
+    if in_perdita:
+        sezioni.append("> **Nota:** L'azienda ha EBIT negativo. Il FCFF calcolato "
+                      "potrebbe essere negativo. Il DCF proietta la convergenza "
+                      "verso la profittabilita' secondo le assunzioni dell'analista.")
+        sezioni.append("")
+
+    sezioni.append("### 4.1 FCFF Base")
     sezioni.append("")
     sezioni.append("**Formula:** `FCFF = EBIT*(1-t) + Deprezzamento - CapEx - Delta WC`")
     sezioni.append("")
@@ -254,7 +304,7 @@ def genera_report(dati: dict, config: dict) -> None:
     sezioni.append("")
 
     # DCF multi-stage
-    sezioni.append("### 3.2 Proiezione Multi-Stage (3 fasi)")
+    sezioni.append("### 4.2 Proiezione Multi-Stage (3 fasi)")
     sezioni.append("")
     sezioni.append(f"- **Fase 1 (Alta crescita):** {crescita_alta:.0%} per {anni_alta} anni")
     sezioni.append(f"- **Fase 2 (Transizione):** convergenza lineare per {anni_transizione} anni")
@@ -285,12 +335,12 @@ def genera_report(dati: dict, config: dict) -> None:
     sezioni.append("")
 
     # Riepilogo DCF
-    sezioni.append("### 3.3 Riepilogo Valutazione DCF")
+    sezioni.append("### 4.3 Riepilogo Valutazione DCF")
     sezioni.append("")
     enterprise_value_dcf = dcf_result.valore_totale
     equity_value_dcf = enterprise_value_dcf - debito_netto
-    valore_per_azione_dcf = equity_value_dcf / shares_outstanding
-    upside_dcf = (valore_per_azione_dcf - prezzo_corrente) / prezzo_corrente
+    valore_per_azione_dcf = equity_value_dcf / shares_outstanding if shares_outstanding > 0 else 0
+    upside_dcf = (valore_per_azione_dcf - prezzo_corrente) / prezzo_corrente if prezzo_corrente > 0 else 0
 
     headers_dcf_summary = ["Componente", "Valore"]
     rows_dcf_summary = [
@@ -312,10 +362,15 @@ def genera_report(dati: dict, config: dict) -> None:
     # ==================================================================
     # SEZIONE 4: VALUTAZIONE RELATIVA
     # ==================================================================
-    sezioni.append("## 4. Valutazione Relativa (Multipli)")
+    sezioni.append("## 5. Valutazione Relativa (Multipli)")
     sezioni.append("")
 
-    sezioni.append("### 4.1 Campione Comparabili")
+    if in_perdita:
+        sezioni.append("> **Nota:** L'azienda ha EPS e/o EBITDA negativi. "
+                      "I multipli P/E e EV/EBITDA non sono applicabili e sono riportati come N/A.")
+        sezioni.append("")
+
+    sezioni.append("### 5.1 Campione Comparabili")
     sezioni.append("")
     headers_comp = ["Ticker", "Nome", "Market Cap (B)", "P/E", "EV/EBITDA", "P/B", "EV/Sales"]
     rows_comp = []
@@ -324,23 +379,23 @@ def genera_report(dati: dict, config: dict) -> None:
             c.ticker,
             c.nome,
             f"${c.market_cap/1000:,.0f}B",
-            f"{c.pe_ratio:.1f}" if c.pe_ratio else "N/D",
-            f"{c.ev_ebitda:.1f}" if c.ev_ebitda else "N/D",
-            f"{c.pb_ratio:.1f}" if c.pb_ratio else "N/D",
-            f"{c.ev_sales:.1f}" if c.ev_sales else "N/D",
+            _fmt_multiplo(c.pe_ratio),
+            _fmt_multiplo(c.ev_ebitda),
+            _fmt_multiplo(c.pb_ratio),
+            _fmt_multiplo(c.ev_sales),
         ])
-    # Aggiungi il ticker target per confronto
-    pe_target = prezzo_corrente / eps
-    ev_ebitda_target = enterprise_value / ebitda
-    pb_target = prezzo_corrente / book_value_per_share
-    ev_sales_target = enterprise_value / ricavi
+    # Aggiungi il ticker target per confronto (con guard per divisioni)
+    pe_target = _safe_div(prezzo_corrente, eps)
+    ev_ebitda_target = _safe_div(enterprise_value, ebitda)
+    pb_target = _safe_div(prezzo_corrente, book_value_per_share)
+    ev_sales_target = _safe_div(enterprise_value, ricavi)
     rows_comp.append([
         f"**{ticker}**", f"**{nome}**",
         f"**${market_cap/1000:,.0f}B**",
-        f"**{pe_target:.1f}**",
-        f"**{ev_ebitda_target:.1f}**",
-        f"**{pb_target:.1f}**",
-        f"**{ev_sales_target:.1f}**",
+        f"**{_fmt_multiplo(pe_target)}**",
+        f"**{_fmt_multiplo(ev_ebitda_target)}**",
+        f"**{_fmt_multiplo(pb_target)}**",
+        f"**{_fmt_multiplo(ev_sales_target)}**",
     ])
     sezioni.append(tabella_markdown(headers_comp, rows_comp))
     sezioni.append("")
@@ -348,9 +403,9 @@ def genera_report(dati: dict, config: dict) -> None:
     # Valutazione relativa
     rel_result = valutazione_relativa(
         ticker=ticker,
-        eps=eps,
-        ebitda=ebitda,
-        book_value_per_share=book_value_per_share,
+        eps=max(eps, 0.01),  # Evita divisione per zero nel modulo
+        ebitda=max(ebitda, 0.01),
+        book_value_per_share=max(book_value_per_share, 0.01),
         ricavi=ricavi,
         debito_netto=debito_netto,
         shares_outstanding=shares_outstanding,
@@ -358,7 +413,7 @@ def genera_report(dati: dict, config: dict) -> None:
         prezzo_corrente=prezzo_corrente,
     )
 
-    sezioni.append("### 4.2 Statistiche Multipli Comparabili")
+    sezioni.append("### 5.2 Statistiche Multipli Comparabili")
     sezioni.append("")
     for mult_name, display_name in [
         ("pe_ratio", "P/E"), ("ev_ebitda", "EV/EBITDA"),
@@ -371,7 +426,7 @@ def genera_report(dati: dict, config: dict) -> None:
                           f"Min={stat.minimo:.1f}, Max={stat.massimo:.1f} (n={stat.num_osservazioni})")
 
     sezioni.append("")
-    sezioni.append("### 4.3 Valori Impliciti")
+    sezioni.append("### 5.3 Valori Impliciti")
     sezioni.append("")
 
     headers_impl = ["Multiplo", "Valore Implicito/Azione"]
@@ -380,13 +435,20 @@ def genera_report(dati: dict, config: dict) -> None:
         for chiave, valore in rel_result.dettagli.items():
             if chiave.startswith("valore_implicito_") and isinstance(valore, (int, float)):
                 nome_mult = chiave.replace("valore_implicito_", "").upper().replace("_", "/")
-                rows_impl.append([nome_mult, formatta_valuta(valore, valuta)])
+                # Salta valori impliciti da multipli non applicabili (negativi o anomali)
+                if valore > 0:
+                    rows_impl.append([nome_mult, formatta_valuta(valore, valuta)])
     if rows_impl:
         sezioni.append(tabella_markdown(headers_impl, rows_impl))
+    else:
+        sezioni.append("*Nessun multiplo applicabile produce un valore implicito positivo.*")
     sezioni.append("")
 
     valore_relativo = rel_result.valore_per_azione
-    upside_rel = (valore_relativo - prezzo_corrente) / prezzo_corrente if prezzo_corrente > 0 else 0
+    if valore_relativo > 0 and prezzo_corrente > 0:
+        upside_rel = (valore_relativo - prezzo_corrente) / prezzo_corrente
+    else:
+        upside_rel = 0
     sezioni.append(f"**Valore Mediano Multipli:** {formatta_valuta(valore_relativo, valuta)}")
     sezioni.append(f"**Upside/Downside:** {upside_rel:+.1%}")
     sezioni.append("")
@@ -394,11 +456,11 @@ def genera_report(dati: dict, config: dict) -> None:
     # ==================================================================
     # SEZIONE 5: SENSITIVITY ANALYSIS
     # ==================================================================
-    sezioni.append("## 5. Analisi di Sensitivita'")
+    sezioni.append("## 6. Analisi di Sensitivita'")
     sezioni.append("")
 
     # 5.1 WACC vs Terminal Growth
-    sezioni.append("### 5.1 WACC vs Tasso di Crescita Terminale")
+    sezioni.append("### 6.1 WACC vs Tasso di Crescita Terminale")
     sezioni.append("")
     sezioni.append("Valore per azione al variare di WACC e crescita terminale:")
     sezioni.append("")
@@ -416,8 +478,11 @@ def genera_report(dati: dict, config: dict) -> None:
     sezioni.append("")
 
     # 5.2 Crescita Ricavi vs Margine Operativo
-    sezioni.append("### 5.2 Crescita Ricavi vs Margine Operativo")
+    sezioni.append("### 6.2 Crescita Ricavi vs Margine Operativo")
     sezioni.append("")
+
+    capex_pct = capex / ricavi if ricavi > 0 else 0.05
+    depr_pct = deprezzamento / ricavi if ricavi > 0 else 0.04
 
     sens_crescita_margine = sensitivity_crescita_margine(
         ricavi_base=ricavi,
@@ -425,8 +490,8 @@ def genera_report(dati: dict, config: dict) -> None:
         shares_outstanding=shares_outstanding,
         wacc=wacc_val,
         tax_rate=tax_rate,
-        capex_pct_ricavi=capex / ricavi,
-        depr_pct_ricavi=deprezzamento / ricavi,
+        capex_pct_ricavi=capex_pct,
+        depr_pct_ricavi=depr_pct,
         crescita_range=sens["crescita_range"],
         margine_range=sens["margine_range"],
     )
@@ -436,7 +501,7 @@ def genera_report(dati: dict, config: dict) -> None:
     # ==================================================================
     # SEZIONE 6: ANALISI PER SCENARI
     # ==================================================================
-    sezioni.append("## 6. Analisi per Scenari")
+    sezioni.append("## 7. Analisi per Scenari")
     sezioni.append("")
 
     scenari = crea_scenari_standard(
@@ -462,7 +527,7 @@ def genera_report(dati: dict, config: dict) -> None:
     # ==================================================================
     # SEZIONE 7: SIMULAZIONE MONTE CARLO
     # ==================================================================
-    sezioni.append("## 7. Simulazione Monte Carlo")
+    sezioni.append("## 8. Simulazione Monte Carlo")
     sezioni.append("")
     sezioni.append("**Parametri della simulazione:**")
     sezioni.append("- Iterazioni: 10.000")
@@ -511,11 +576,13 @@ def genera_report(dati: dict, config: dict) -> None:
     # ==================================================================
     # SEZIONE 8: SINTESI E RACCOMANDAZIONE
     # ==================================================================
-    sezioni.append("## 8. Sintesi Multi-Metodo e Raccomandazione")
+    sezioni.append("## 9. Sintesi Multi-Metodo e Raccomandazione")
     sezioni.append("")
 
     # Tabella sintesi
     headers_sintesi = ["Metodo", "Valore/Azione", "Upside/Downside", "Peso"]
+    upside_scenari = (valore_atteso_scenari - prezzo_corrente) / prezzo_corrente if prezzo_corrente > 0 else 0
+    upside_mc = (mc_result["mediana"] - prezzo_corrente) / prezzo_corrente if prezzo_corrente > 0 else 0
     rows_sintesi = [
         [
             "DCF FCFF (3-stage)",
@@ -532,13 +599,13 @@ def genera_report(dati: dict, config: dict) -> None:
         [
             "Valore Atteso Scenari",
             formatta_valuta(valore_atteso_scenari, valuta),
-            f"{(valore_atteso_scenari - prezzo_corrente) / prezzo_corrente:+.1%}",
+            f"{upside_scenari:+.1%}",
             "15%",
         ],
         [
             "Monte Carlo (Mediana)",
             formatta_valuta(mc_result["mediana"], valuta),
-            f"{(mc_result['mediana'] - prezzo_corrente) / prezzo_corrente:+.1%}",
+            f"{upside_mc:+.1%}",
             "20%",
         ],
     ]
@@ -552,7 +619,7 @@ def genera_report(dati: dict, config: dict) -> None:
         + valore_atteso_scenari * 0.15
         + mc_result["mediana"] * 0.20
     )
-    upside_totale = (valore_ponderato - prezzo_corrente) / prezzo_corrente
+    upside_totale = (valore_ponderato - prezzo_corrente) / prezzo_corrente if prezzo_corrente > 0 else 0
 
     sezioni.append("### Valore Intrinseco Stimato")
     sezioni.append("")
@@ -592,13 +659,15 @@ def genera_report(dati: dict, config: dict) -> None:
     # ==================================================================
     # SEZIONE 9: RISCHI E DISCLAIMER
     # ==================================================================
-    sezioni.append("## 9. Fattori di Rischio e Considerazioni")
+    sezioni.append("## 10. Fattori di Rischio e Considerazioni")
     sezioni.append("")
     sezioni.append("### Rischi al Rialzo")
+    sezioni.append("")
     for rischio in config["rischi_rialzo"]:
         sezioni.append(f"- {rischio}")
     sezioni.append("")
     sezioni.append("### Rischi al Ribasso")
+    sezioni.append("")
     for rischio in config["rischi_ribasso"]:
         sezioni.append(f"- {rischio}")
     sezioni.append("")
@@ -618,15 +687,36 @@ def genera_report(dati: dict, config: dict) -> None:
     sezioni.append(f"*Report generato il {date.today().isoformat()} dal Valuation Analyst Multi-Agent System*")
 
     # ==================================================================
+    # COMPILAZIONE EXECUTIVE SUMMARY (inserita al posto del placeholder)
+    # ==================================================================
+    ic_90_low = formatta_valuta(mc_result['intervallo_confidenza_90'][0], valuta)
+    ic_90_high = formatta_valuta(mc_result['intervallo_confidenza_90'][1], valuta)
+    exec_summary = "\n".join([
+        "## 1. Executive Summary",
+        "",
+        "| Metrica | Valore |",
+        "|---------|--------|",
+        f"| **Valore Intrinseco Stimato** | **{formatta_valuta(valore_ponderato, valuta)}** |",
+        f"| Prezzo Corrente | {formatta_valuta(prezzo_corrente, valuta)} |",
+        f"| Upside/Downside | {upside_totale:+.1%} |",
+        f"| Raccomandazione | **{raccomandazione}** |",
+        f"| IC 90% Monte Carlo | {ic_90_low} - {ic_90_high} |",
+        f"| WACC | {formatta_percentuale(wacc_val)} |",
+        "",
+        f"> {commento}",
+        "",
+    ])
+    sezioni[indice_executive_summary] = exec_summary
+
+    # ==================================================================
     # SCRIVI IL REPORT
     # ==================================================================
-    report_dir = ROOT / "report"
-    report_dir.mkdir(parents=True, exist_ok=True)
-    report_path = report_dir / f"{ticker}_valuation_report_{date.today().isoformat()}.md"
+    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    report_path = REPORTS_DIR / f"{ticker}_{date.today().isoformat()}_valuation.md"
 
     contenuto = "\n".join(sezioni)
     report_path.write_text(contenuto, encoding="utf-8")
-    print(f"Report scritto in: {report_path}")
+    print(f"\nReport scritto in: {report_path}")
     print(f"Dimensione: {len(contenuto):,} caratteri")
     print(f"\nRiepilogo rapido:")
     print(f"  WACC:                {formatta_percentuale(wacc_val)}")
@@ -638,6 +728,8 @@ def genera_report(dati: dict, config: dict) -> None:
     print(f"  Prezzo Corrente:     {formatta_valuta(prezzo_corrente, valuta)}")
     print(f"  Upside/Downside:     {upside_totale:+.1%}")
     print(f"  Raccomandazione:     {raccomandazione}")
+    if in_perdita:
+        print(f"  NOTA: Azienda in perdita operativa - alcuni multipli N/A")
 
 
 def main() -> None:

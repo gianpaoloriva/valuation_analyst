@@ -244,10 +244,6 @@ def gordon_growth(
     float
         Il valore terminale.
     """
-    if cash_flow <= 0:
-        raise ValueError(
-            f"Il flusso di cassa deve essere positivo (ricevuto: {cash_flow})."
-        )
     if tasso_crescita >= tasso_sconto:
         raise ValueError(
             "Il tasso di crescita ({:.4f}) deve essere inferiore al "
