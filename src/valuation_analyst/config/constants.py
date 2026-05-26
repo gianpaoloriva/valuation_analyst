@@ -162,3 +162,60 @@ class ParametriRelativa:
         default_factory=lambda: ["pe_ratio", "ev_ebitda", "pb_ratio", "ev_sales"]
     )
     """Lista dei multipli da calcolare di default."""
+
+
+# --- Parametri Italia (contesto italiano/europeo) ---
+
+ITALY_IRES_RATE: float = 0.24
+"""Aliquota IRES (Imposta sul Reddito delle Societa')."""
+
+ITALY_IRAP_RATE: float = 0.039
+"""Aliquota IRAP base (varia per regione e settore)."""
+
+ITALY_COMBINED_TAX_RATE: float = 0.279
+"""Aliquota fiscale combinata IRES + IRAP."""
+
+ITALY_DEFAULT_RISK_FREE_RATE: float = 0.04
+"""Tasso risk-free di default per l'Italia (BTP 10Y)."""
+
+ITALY_DEFAULT_ERP: float = 0.07
+"""Equity Risk Premium italiano (include Country Risk Premium Italia)."""
+
+ITALY_DEFAULT_TERMINAL_GROWTH: float = 0.015
+"""Tasso di crescita terminale per l'Italia (PIL nominale Eurozona a lungo termine)."""
+
+ITALY_DEFAULT_STABLE_GROWTH: float = 0.015
+"""Tasso di crescita nella fase stabile per l'Italia."""
+
+ITALY_DEFAULT_COST_OF_DEBT_SPREAD: float = 0.02
+"""Spread di default sul costo del debito per l'Italia (su Euribor)."""
+
+ITALY_IRAP_FINANCIAL_RATE: float = 0.0465
+"""Aliquota IRAP per il settore finanziario."""
+
+ITALY_IRAP_INSURANCE_RATE: float = 0.059
+"""Aliquota IRAP per il settore assicurativo."""
+
+ITALY_PEX_EXEMPTION: float = 0.95
+"""Percentuale di esenzione PEX (Participation Exemption, art. 87 TUIR)."""
+
+ITALY_ART96_ROL_LIMIT: float = 0.30
+"""Limite deducibilita' interessi passivi (art. 96 TUIR, 30% del ROL)."""
+
+
+@dataclass(frozen=True)
+class ParametriDCFItalia:
+    """Parametri di default per il modello DCF in contesto italiano/europeo.
+
+    Basati su BTP 10Y come risk-free, ERP italiano (include CRP),
+    aliquota IRES+IRAP combinata, crescita terminale allineata
+    al PIL nominale Eurozona.
+    """
+
+    anni_proiezione: int = DEFAULT_HIGH_GROWTH_YEARS + DEFAULT_TRANSITION_YEARS
+    anni_alta_crescita: int = DEFAULT_HIGH_GROWTH_YEARS
+    anni_transizione: int = DEFAULT_TRANSITION_YEARS
+    tasso_crescita_terminale: float = ITALY_DEFAULT_TERMINAL_GROWTH
+    risk_free_rate: float = ITALY_DEFAULT_RISK_FREE_RATE
+    erp: float = ITALY_DEFAULT_ERP
+    aliquota_fiscale: float = ITALY_COMBINED_TAX_RATE

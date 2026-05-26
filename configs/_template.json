@@ -2,6 +2,8 @@
   "_doc": "Template per la configurazione di una nuova analisi. Copiare e rinominare come {TICKER}.json",
 
   "ticker": "TICKER",
+  "paese": "US",
+  "modalita": "damodaran",
   "erp": 0.055,
   "rating_credito": "BBB",
   "crescita_alta": 0.10,

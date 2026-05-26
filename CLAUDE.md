@@ -2,7 +2,10 @@
 
 ## Panoramica Progetto
 
-Toolkit multi-agente per equity valuation basato sulle metodologie di Aswath Damodaran (NYU Stern).
+Toolkit multi-agente per equity valuation con due modalita' operative:
+- **Modalita' Damodaran**: pipeline Python automatizzata (Damodaran, NYU Stern), report markdown/PDF
+- **Modalita' FSI Excel**: modelli Excel interattivi con formule vive, compliance normativa italiana
+
 Doppio scopo: (1) strumento di lavoro per analisti finanziari, (2) demo per mostrare Claude Code.
 
 ## Convenzioni
@@ -28,7 +31,8 @@ valuation_analyst/
     tools/                      Moduli di calcolo + fetch_dati.py
     utils/                      Math, formatting, logging, validazione
   configs/                      File JSON di configurazione (uno per ticker)
-    _template.json              Template documentato per nuove analisi
+    _template.json              Template per analisi US/internazionali
+    _template_italia.json       Template per analisi societa' italiane/europee
   scripts/                      Script di utilita'
     run_analysis.py             Analisi completa (config -> report)
     md_to_pdf.py                Conversione report MD -> PDF
@@ -39,8 +43,8 @@ valuation_analyst/
     cache/                      Cache dati Damodaran
     logs/                       prompt_log.md
   .claude/
-    agents/                     8 agenti specializzati
-    skills/                     10 skill di valutazione
+    agents/                     8 agenti Damodaran + 10 agenti FSI Italy
+    skills/                     10 skill Damodaran + 59 skill FSI Italy (prefisso fsi-)
     commands/                   Comandi slash (/status, /demo)
   tests/                        165 test (unit + integration)
   demos/                        8 script demo (01-08)
@@ -49,13 +53,22 @@ valuation_analyst/
 
 ## Flow di Analisi
 
-1. **Config**: creare/popolare `configs/{TICKER}.json` (copiare da `_template.json`)
+### Modalita' Damodaran (report markdown/PDF)
+1. **Config**: creare/popolare `configs/{TICKER}.json` (copiare da `_template.json` o `_template_italia.json`)
 2. **Analisi**: `python scripts/run_analysis.py {TICKER}`
 3. **PDF**: `python scripts/md_to_pdf.py {TICKER}`
 4. Output in `output/markdown/` e `output/pdf/`
 
 **IMPORTANTE**: NON creare script .py ad-hoc per singole analisi. Usare SEMPRE `run_analysis.py`.
 Il flow gestisce sia aziende profittevoli che in perdita (EBIT/EPS negativi).
+
+### Modalita' FSI Excel (modelli Excel interattivi)
+1. **Invoca**: `/fsi-valuation TICKER.MI` (o `/fsi-valuation TICKER.MI --tipo dcf|lbo|comps|pitch`)
+2. Claude costruisce il modello Excel step-by-step con formule vive
+3. Review interattiva a ogni fase (input -> proiezioni -> WACC -> DCF -> sensitivity)
+4. Output: file .xlsx con formule vive in EUR
+
+Parametri italiani: BTP 10Y (risk-free), ERP 6-8%, Euribor (costo debito), IRES 24% + IRAP 3.9%, IFRS.
 
 ## Naming Convention Output
 
@@ -77,6 +90,7 @@ Il flow gestisce sia aziende profittevoli che in perdita (EBIT/EPS negativi).
 
 ## Agenti Disponibili
 
+### Agenti Damodaran (Python, report markdown/PDF)
 1. **orchestrator** - Coordina tutti gli agenti
 2. **dcf-analyst** - Valutazione DCF (FCFF/FCFE)
 3. **relative-analyst** - Multipli e comparabili
@@ -85,6 +99,18 @@ Il flow gestisce sia aziende profittevoli che in perdita (EBIT/EPS negativi).
 6. **private-valuation** - Societa' private, sconti illiquidita'
 7. **ma-analyst** - M&A e sinergie
 8. **risk-analyst** - Sensitivity e Monte Carlo
+
+### Agenti FSI Italy (Excel con formule vive, contesto italiano/europeo)
+9. **fsi-model-builder-italy** - Modelli DCF, LBO, 3-statement, comps Excel (IFRS, BTP, Euribor, IRES+IRAP)
+10. **fsi-pitch-agent-italy** - Pitch completo: workbook Excel + deck PowerPoint
+11. **fsi-earnings-reviewer-italy** - Revisione utili e aggiornamento modelli
+12. **fsi-market-researcher-italy** - Ricerca di mercato e analisi settoriale
+13. **fsi-valuation-reviewer-italy** - Review valutazioni per LP reporting
+14. **fsi-meeting-prep-agent-italy** - Preparazione briefing MiFID II-compliant
+15. **fsi-kyc-screener-italy** - KYC/AML screening (D.Lgs. 231/2007)
+16. **fsi-gl-reconciler-italy** - Riconciliazione contabile
+17. **fsi-month-end-closer-italy** - Chiusura mensile (assestamento, TFR)
+18. **fsi-statement-auditor-italy** - Verifica estratti conto LP/NAV
 
 ## Logging Prompt
 
@@ -98,11 +124,29 @@ Ogni interazione significativa va loggata in `data/logs/prompt_log.md` usando `u
 - **Terminal Value**: TV = FCF*(1+g)/(r-g)
 - **Black-Scholes**: Equity = V*N(d1) - K*e^(-rT)*N(d2)
 
+## Skill FSI Italy per Verticale
+
+Le 58 skill FSI Italy (prefisso `fsi-`) coprono 6 verticali:
+
+| Verticale | Skills | Esempi |
+|-----------|--------|--------|
+| Financial Analysis | 13 | fsi-dcf-model-italy, fsi-comps-analysis-italy, fsi-lbo-model-italy |
+| Equity Research | 9 | fsi-initiating-coverage-italy, fsi-earnings-analysis-italy |
+| Investment Banking | 10 | fsi-golden-power-check, fsi-merger-model-italy |
+| Private Equity | 10 | fsi-returns-analysis-italy, fsi-dd-checklist-italy |
+| Wealth Management | 12 | fsi-mifid-ii-adeguatezza, fsi-regime-fiscale-italia |
+| Operations | 4 | fsi-kyc-rules-italy, fsi-aml-italia-231, fsi-dora-compliance |
+
+Compliance normativa: CONSOB, AGCM, MiFID II, Golden Power, KYC/AML (D.Lgs. 231/2007), SFDR, DORA.
+
 ## Comandi Utili
 
 ```bash
 pip install -e ".[dev]"                # Installazione
 pytest tests/                           # 165 test
-python scripts/run_analysis.py AAPL     # Analisi completa
+python scripts/run_analysis.py AAPL     # Analisi Damodaran (US)
+python scripts/run_analysis.py ENEL.MI  # Analisi Damodaran (Italia)
 python scripts/md_to_pdf.py AAPL        # Genera PDF
+/fsi-valuation ENEL.MI                  # Modello Excel FSI Italy
+/fsi-valuation ENEL.MI --tipo pitch     # Pitch completo (Excel + deck)
 ```

@@ -32,6 +32,11 @@ from valuation_analyst.tools.scenario_analysis import crea_scenari_standard, for
 from valuation_analyst.tools.monte_carlo import monte_carlo_dcf, formatta_monte_carlo, istogramma_ascii
 from valuation_analyst.models.comparable import Comparabile
 from valuation_analyst.config.settings import CONFIGS_DIR, REPORTS_DIR
+from valuation_analyst.config.constants import (
+    ITALY_COMBINED_TAX_RATE,
+    ITALY_DEFAULT_ERP,
+    ITALY_DEFAULT_TERMINAL_GROWTH,
+)
 from valuation_analyst.utils.formatting import (
     formatta_valuta, formatta_percentuale, formatta_numero,
     formatta_miliardi, tabella_markdown,
@@ -116,7 +121,15 @@ def genera_report(dati: dict, config: dict) -> None:
     debito_netto = dati["debito_netto"]
     enterprise_value = dati["enterprise_value"]
 
-    # Parametri analista dal config
+    # Parametri analista dal config (con defaults italiani se paese == "IT")
+    paese = config.get("paese", "US")
+    is_italy = paese == "IT"
+    if is_italy:
+        print(f"  Modalita' italiana attiva (IRES+IRAP, BTP, Euribor)")
+        tax_rate = config.get("fondamentali_fallback", {}).get("tax_rate", ITALY_COMBINED_TAX_RATE)
+        if tax_rate < 0.25:
+            tax_rate = ITALY_COMBINED_TAX_RATE
+
     erp = config["erp"]
     rating_credito = config["rating_credito"]
     crescita_alta = config["crescita_alta"]

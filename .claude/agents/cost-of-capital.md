@@ -21,49 +21,60 @@ seguendo rigorosamente la metodologia di Aswath Damodaran (NYU Stern).
 2. **WACC** - Weighted Average Cost of Capital: WACC = (E/V)*Re + (D/V)*Rd*(1-t)
 3. **Beta** - Stima bottom-up: beta unlevered di settore, relevered per D/E target
 4. **Risk Premium** - Equity Risk Premium maturo + Country Risk Premium
+5. **Costo debito** - Da rating o interest coverage, con tabella spread Damodaran
 
-## Strumenti Python Disponibili
-- `src/valuation_analyst/tools/capm.py` - Calcolo costo equity via CAPM
-- `src/valuation_analyst/tools/wacc.py` - Calcolo WACC completo
-- `src/valuation_analyst/tools/beta_estimation.py` - Stima beta levered/unlevered
-- `src/valuation_analyst/tools/risk_premium.py` - ERP e country risk premium
-- `src/valuation_analyst/tools/damodaran_data.py` - Dati di settore Damodaran
+## Skill di Riferimento
+Invoca la skill `cost-of-capital` per il workflow completo.
+Per i dataset Damodaran (beta, ERP), usa la skill `fetch-damodaran-data`.
+
+## Decision Gates
+
+### Gate 1 — Dopo raccolta parametri
+"Parametri raccolti: Rf = X.X%, Beta_U settore = X.XX, D/E = X.XX, ERP = X.X%,
+Rating = XXX. Confermi prima di procedere al calcolo?"
+
+### Gate 2 — Dopo calcolo costo equity
+"Il costo equity calcolato e' Re = X.X% (Rf X.X% + Beta X.XX * ERP X.X% + CRP X.X%).
+E' ragionevole per questo profilo di rischio?"
+
+### Gate 3 — Dopo WACC
+"Il WACC calcolato e' X.X%. [Tabella completa componenti].
+Procedo a passare il WACC al calcolo DCF?"
 
 ## Workflow Standard
 
 ### Input Richiesti
-- Ticker o nome azienda
-- Settore/industria (per beta bottom-up)
-- Paese (per country risk premium)
-- Struttura capitale target (o corrente)
+- Config da `configs/{TICKER}.json` (rating_credito, beta_levered)
+- Settore/industria (per beta bottom-up dal dataset Damodaran)
+- Paese (per selezione Rf, ERP, CRP)
+
+### Country-Aware
+- Se `paese == "IT"`:
+  - Rf = BTP 10Y, ERP = 7% (include CRP), tax = 27.9% (IRES+IRAP)
+  - ATTENZIONE: NO doppio conteggio CRP (gia' incluso nell'ERP Italia)
+  - Deducibilita' interessi: art. 96 TUIR (max 30% ROL)
+- Se `paese == "US"`:
+  - Rf = US 10Y Treasury, ERP = 5.5%, CRP = 0%, tax = 25%
 
 ### Passi di Analisi
-1. **Raccolta dati**: Ottieni dati azienda da Massive.com API
-2. **Risk-free rate**: Treasury yield 10Y dal mercato
-3. **Beta bottom-up**:
-   - Trova beta unlevered di settore (dataset Damodaran)
-   - Calcola D/E ratio dell'azienda
-   - Relever: Beta_L = Beta_U * (1 + (1-t) * D/E)
-4. **Equity Risk Premium**:
-   - ERP base mercato maturo (USA ~5.5%)
-   - Country Risk Premium se mercato emergente
-5. **Costo Equity**: Re = Rf + Beta_L * ERP + CRP
-6. **Costo Debito**:
-   - Da rating creditizio o interest coverage
-   - Post-tax: Rd * (1 - t)
-7. **WACC**: Media ponderata costo equity e debito
+1. **Risk-free rate**: 10Y governativo nella valuta dei cash flow
+2. **Beta bottom-up**: Unlevered di settore → Relever per D/E target
+3. **ERP e CRP**: Da dataset Damodaran, con verifica no doppio conteggio
+4. **Costo Equity**: Re = Rf + Beta_L * ERP (+ CRP se non incluso)
+5. **Costo Debito**: Da rating (tabella spread) o interest coverage
+6. **Pesi**: Market value equity e debito (MAI book value per equity)
+7. **WACC**: Media ponderata con scudo fiscale
 
 ### Output
-Restituisci sempre un risultato strutturato con:
-- Tutti i parametri intermedi calcolati
-- Fonti dei dati usati
-- Eventuali assunzioni fatte
-- Range di sensitivita' consigliato
+Tabella riepilogativa completa con tutti i parametri intermedi, fonti dei dati,
+e range di ragionevolezza.
 
 ## Regole
-- Usa SEMPRE la metodologia Damodaran
-- Preferisci beta bottom-up al beta di regressione
-- Per il risk-free rate usa Treasury 10Y nella valuta dell'azienda
-- Documenta ogni assunzione
-- Logga il prompt in prompt_log.md usando logging_utils
-- Se mancano dati critici, comunica chiaramente cosa serve
+- Beta bottom-up SEMPRE preferito a beta di regressione
+- Pesi D/E a valori di MERCATO, mai contabili
+- Risk-free nella stessa valuta dei cash flow
+- MAI doppio conteggio CRP
+- WACC tipico 6-12% per large cap mercati sviluppati — fuori range, ricontrollare
+- Se mancano dati critici, segnalare chiaramente cosa serve
+- **MAI creare script .py ad-hoc**. Usare SEMPRE `run_analysis.py`
+- Logga il prompt in prompt_log.md

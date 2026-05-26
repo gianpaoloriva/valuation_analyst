@@ -1,15 +1,29 @@
 # Valuation Analyst
 
-**Sistema multi-agente per equity valuation basato sulle metodologie di Aswath Damodaran (NYU Stern).**
+**Sistema multi-agente per equity valuation con due modalita' operative: Damodaran (Python, report markdown/PDF) e FSI Excel (modelli Excel con formule vive, compliance normativa italiana).**
 
-Toolkit professionale che combina 8 agenti Claude Code specializzati con moduli di calcolo Python per produrre report di valutazione completi, dalla raccolta dati alla raccomandazione finale.
+Toolkit professionale che combina 18 agenti Claude Code specializzati con moduli di calcolo Python per produrre report di valutazione completi e modelli Excel di qualita' istituzionale.
 
 ## Scopo
 
 1. **Strumento di lavoro** per analisti finanziari: genera report di valutazione riproducibili e audit-friendly
-2. **Demo** per mostrare come Claude Code puo' orchestrare analisi finanziarie complesse
+2. **Modelli Excel istituzionali** per il mercato italiano/europeo con compliance CONSOB, AGCM, MiFID II
+3. **Demo** per mostrare come Claude Code puo' orchestrare analisi finanziarie complesse
+
+## Due Modalita' Operative
+
+| Aspetto | Damodaran (Python) | FSI Excel (Italia) |
+| --- | --- | --- |
+| **Output** | Report Markdown/PDF | Workbook Excel con formule vive |
+| **Calcolo** | Python automatizzato | Claude guida la costruzione Excel |
+| **Interazione** | Batch (config -> report) | Step-by-step con review utente |
+| **Parametri** | Damodaran datasets, US Treasury | IFRS, BTP 10Y, Euribor, IRES+IRAP |
+| **Compliance** | No | CONSOB, AGCM, MiFID II, Golden Power |
+| **Comando** | `python scripts/run_analysis.py TICKER` | `/fsi-valuation TICKER.MI` |
 
 ## Metodologie
+
+### Modalita' Damodaran (Python)
 
 | Metodologia | Modulo | Output |
 | --- | --- | --- |
@@ -20,6 +34,17 @@ Toolkit professionale che combina 8 agenti Claude Code specializzati con moduli 
 | Societa' private | `tools/illiquidity_discount.py`, `control_premium.py` | Sconti/premi per non quotate |
 | M&A | `tools/synergy_valuation.py`, `acquisition_value.py` | Valore con sinergie |
 | Risk analysis | `tools/sensitivity_table.py`, `monte_carlo.py`, `scenario_analysis.py` | Distribuzione valori |
+
+### Modalita' FSI Excel (Italia/Europa)
+
+| Metodologia | Skill FSI | Output |
+| --- | --- | --- |
+| DCF (BTP, ERP italiano, IRES+IRAP) | `fsi-dcf-model-italy` | Workbook Excel DCF + WACC + sensitivity |
+| LBO (Euribor, leverage 3-4.5x, PEX) | `fsi-lbo-model-italy` | Sources & Uses, debt schedule, returns |
+| Three-statement (IFRS) | `fsi-3-statement-model-italy` | IS/BS/CF integrato con formule vive |
+| Trading comps (Borsa Italiana, Euronext) | `fsi-comps-analysis-italy` | Multipli, statistiche, outlier |
+| Pitch completo | `fsi-pitch-agent-italy` | Excel + deck PowerPoint |
+| Merger model (IFRS 3, art. 176 TUIR) | `fsi-merger-model-italy` | Accretion/dilution, sinergie |
 
 ## Setup
 
@@ -34,7 +59,7 @@ Requisiti: Python 3.11+, API key [Massive.com](https://massive.com).
 
 ## Come funziona
 
-### Flow di analisi (3 step)
+### Flow Damodaran (3 step)
 
 ```text
 Step 1: CONFIG          Step 2: ANALISI              Step 3: PDF
@@ -45,23 +70,38 @@ configs/NVDA.json  -->  run_analysis.py NVDA  -->  md_to_pdf.py NVDA
 **Step 1 - Configura.** Copia il template e popola i parametri dell'analista:
 
 ```bash
+# Societa' US/internazionali
 cp configs/_template.json configs/NVDA.json
-# Modifica: ticker, rating, crescita, comparabili, scenari, rischi
+
+# Societa' italiane/europee (defaults: BTP, ERP 7%, IRES+IRAP 27.9%)
+cp configs/_template_italia.json configs/ENEL.MI.json
 ```
 
 **Step 2 - Analizza.** Lo script legge il config, recupera i dati live da Massive.com, esegue tutti i calcoli e genera il report markdown:
 
 ```bash
-python scripts/run_analysis.py NVDA
-# Output: output/markdown/NVDA_2026-03-18_valuation.md
+python scripts/run_analysis.py NVDA       # Societa' US
+python scripts/run_analysis.py ENEL.MI    # Societa' italiana (defaults IRES+IRAP)
 ```
 
 **Step 3 - PDF.** Converte il report in PDF con layout professionale:
 
 ```bash
 python scripts/md_to_pdf.py NVDA
-# Output: output/pdf/NVDA_2026-03-18_valuation.pdf
 ```
+
+### Flow FSI Excel (interattivo)
+
+Per modelli Excel di qualita' istituzionale con formule vive e compliance normativa italiana:
+
+```bash
+/fsi-valuation ENEL.MI                  # DCF Excel (default)
+/fsi-valuation ENEL.MI --tipo lbo       # LBO model
+/fsi-valuation ENEL.MI --tipo comps     # Trading comps
+/fsi-valuation ENEL.MI --tipo pitch     # Pitch completo (Excel + deck)
+```
+
+Claude costruisce il modello step-by-step, verificando ogni fase con l'utente (input -> proiezioni -> WACC -> DCF -> sensitivity). Output: file `.xlsx` con formule vive in EUR.
 
 ### Cosa genera il report
 
@@ -94,8 +134,10 @@ Il flow gestisce automaticamente aziende con EBIT/EPS negativi (es. Roblox, Unit
 ```text
 valuation_analyst/
   configs/                      Parametri analista per ogni ticker
-    _template.json              Template documentato per nuove analisi
+    _template.json              Template per societa' US/internazionali
+    _template_italia.json       Template per societa' italiane/europee
     AAPL.json                   Apple Inc.
+    ENEL.MI.json                ENEL S.p.A. (esempio italiano)
     GOOGL.json                  Alphabet Inc.
     MSFT.json                   Microsoft Corporation
     ORCL.json                   Oracle Corporation
@@ -115,8 +157,8 @@ valuation_analyst/
     cache/                      Cache dati Damodaran scaricati
     logs/                       Log delle interazioni (prompt_log.md)
   .claude/
-    agents/                     8 agenti specializzati
-    skills/                     10 skill di valutazione
+    agents/                     8 agenti Damodaran + 10 agenti FSI Italy
+    skills/                     10 skill Damodaran + 59 skill FSI Italy (prefisso fsi-)
     commands/                   Comandi slash (/status, /demo)
   tests/                        165 test (unit + integration)
   demos/                        8 script demo con dati di esempio
@@ -127,15 +169,21 @@ valuation_analyst/
 
 Il file `configs/{TICKER}.json` contiene solo i parametri che l'analista decide, non i dati di mercato (recuperati automaticamente da API).
 
+Due template disponibili:
+- `_template.json` - Societa' US/internazionali (ERP 5.5%, tax 25%, terminal growth 2.5%)
+- `_template_italia.json` - Societa' italiane/europee (ERP 7%, IRES+IRAP 27.9%, terminal growth 1.5%)
+
 ### Campi principali
 
 | Campo | Tipo | Esempio | Descrizione |
 | --- | --- | --- | --- |
-| `ticker` | string | `"AAPL"` | Simbolo azionario |
-| `erp` | float | `0.055` | Equity Risk Premium |
+| `ticker` | string | `"AAPL"` o `"ENEL.MI"` | Simbolo azionario |
+| `paese` | string | `"US"` o `"IT"` | Paese (attiva defaults italiani se `"IT"`) |
+| `modalita` | string | `"damodaran"` | Modalita' di analisi |
+| `erp` | float | `0.055` (US) / `0.07` (IT) | Equity Risk Premium |
 | `rating_credito` | string | `"AA+"` | Rating S&P per il costo del debito |
 | `crescita_alta` | float | `0.12` | Tasso crescita fase 1 DCF |
-| `crescita_stabile` | float | `0.025` | Tasso crescita perpetua (terminale) |
+| `crescita_stabile` | float | `0.025` (US) / `0.015` (IT) | Tasso crescita perpetua (terminale) |
 | `anni_alta` | int | `5` | Durata fase alta crescita |
 | `anni_transizione` | int | `5` | Durata convergenza a crescita stabile |
 | `comparabili` | array | vedi sotto | Lista di 5-7 societa' peer |
@@ -176,6 +224,8 @@ Lo script recupera i dati in due modi:
 
 ## Agenti Claude Code
 
+### Agenti Damodaran (Python, report markdown/PDF)
+
 | Agente | Ruolo | Tool principali |
 | --- | --- | --- |
 | **orchestrator** | Coordina tutti gli agenti, sintetizza i risultati | Task, Agent |
@@ -187,7 +237,22 @@ Lo script recupera i dati in due modi:
 | **ma-analyst** | Sinergie e valore di acquisizione | synergy_valuation, acquisition_value |
 | **risk-analyst** | Sensitivity, scenari, Monte Carlo | sensitivity_table, monte_carlo, scenario_analysis |
 
-### Skill disponibili
+### Agenti FSI Italy (Excel con formule vive, contesto italiano/europeo)
+
+| Agente | Ruolo | Parametri |
+| --- | --- | --- |
+| **fsi-model-builder-italy** | DCF, LBO, 3-statement, comps in Excel | BTP, Euribor, IRES+IRAP, IFRS |
+| **fsi-pitch-agent-italy** | Pitch completo: workbook + deck PowerPoint | AGCM, Golden Power, CONSOB |
+| **fsi-earnings-reviewer-italy** | Revisione utili e aggiornamento modelli | Bilancio semestrale/annuale |
+| **fsi-market-researcher-italy** | Ricerca di mercato e analisi settoriale | Borsa Italiana, Euronext |
+| **fsi-valuation-reviewer-italy** | Review valutazioni per LP reporting | PEX, AIFMD |
+| **fsi-meeting-prep-agent-italy** | Briefing MiFID II-compliant | MiFID II, adeguatezza |
+| **fsi-kyc-screener-italy** | KYC/AML screening | D.Lgs. 231/2007, UIF |
+| **fsi-gl-reconciler-italy** | Riconciliazione contabile | OIC, IFRS |
+| **fsi-month-end-closer-italy** | Chiusura mensile | TFR, assestamento |
+| **fsi-statement-auditor-italy** | Verifica estratti conto LP/NAV | SGR/GEFIA |
+
+### Skill Damodaran
 
 | Skill | Comando | Descrizione |
 | --- | --- | --- |
@@ -202,12 +267,36 @@ Lo script recupera i dati in due modi:
 | M&A | `/ma-valuation AAPL` | Solo M&A e sinergie |
 | Dati Damodaran | `/fetch-damodaran-data` | Aggiorna dataset settoriali |
 
+### Skill FSI Italy (58 skill, prefisso `fsi-`)
+
+| Verticale | Skill (n.) | Esempi |
+| --- | --- | --- |
+| Financial Analysis | 13 | `fsi-dcf-model-italy`, `fsi-comps-analysis-italy`, `fsi-lbo-model-italy`, `fsi-3-statement-model-italy` |
+| Equity Research | 9 | `fsi-initiating-coverage-italy`, `fsi-earnings-analysis-italy`, `fsi-sector-overview-italy` |
+| Investment Banking | 10 | `fsi-golden-power-check`, `fsi-merger-model-italy`, `fsi-buyer-list-italy`, `fsi-process-letter-italy` |
+| Private Equity | 10 | `fsi-returns-analysis-italy`, `fsi-dd-checklist-italy`, `fsi-ic-memo-italy` |
+| Wealth Management | 12 | `fsi-mifid-ii-adeguatezza`, `fsi-regime-fiscale-italia`, `fsi-fondi-pensione-italia`, `fsi-pir-pianificazione` |
+| Operations | 4 | `fsi-kyc-rules-italy`, `fsi-aml-italia-231`, `fsi-dora-compliance` |
+
+Entry point: `/fsi-valuation ENEL.MI` per avviare il workflow FSI Excel.
+
 ## Fonti dati
+
+### Modalita' Damodaran
 
 | Fonte | Utilizzo | Accesso |
 | --- | --- | --- |
 | [Massive.com](https://massive.com) | Prezzi, bilanci, ratios, profili aziendali | API key (`.env`) |
 | [Dataset Damodaran](https://pages.stern.nyu.edu/~adamodar/) | Beta settoriali, ERP, WACC, multipli medi | Download automatico + cache |
+
+### Modalita' FSI Excel (Italia)
+
+| Fonte | Utilizzo | Accesso |
+| --- | --- | --- |
+| MCP servers (CapIQ, Daloopa, Refinitiv) | Financials, consensus, multipli | MCP configurati (opzionale) |
+| CONSOB / Borsa Italiana | Bilanci IFRS societa' quotate italiane | Pubblico |
+| Bureau van Dijk / AIDA | Bilanci strutturati, comparabili italiani | Licenza (opzionale) |
+| Dati utente | Bilanci, stime, management guidance | Forniti manualmente |
 
 ## Demo
 
@@ -279,6 +368,23 @@ Se Cowork non e' disponibile, puoi usare Claude Projects:
 3. Carica i file di riferimento: `configs/_template.json`, `docs/methodology.md`
 4. Condividi con il team (richiede piano Team o Enterprise)
 
+## Compliance Normativa Italiana
+
+Le skill FSI Italy includono verifiche e conformita' per:
+
+| Ambito | Normativa | Skill |
+| --- | --- | --- |
+| Antitrust | AGCM (soglie: fatturato >532M EUR, target >32M EUR) | `fsi-golden-power-check`, `fsi-buyer-list-italy` |
+| Settori strategici | Golden Power (D.L. 21/2012) | `fsi-golden-power-check` |
+| Quotate | CONSOB, Regolamento Emittenti | `fsi-pitch-agent-italy` |
+| Adeguatezza | MiFID II (profiling, target market, ESG) | `fsi-mifid-ii-adeguatezza` |
+| Costi | MiFID II ex-ante/ex-post | `fsi-costi-mifid-exante-expost` |
+| AML/KYC | D.Lgs. 231/2007 (3 livelli adeguata verifica) | `fsi-kyc-rules-italy`, `fsi-aml-italia-231` |
+| Sostenibilita' | SFDR art. 6/8/9 | `fsi-sfdr-disclosure` |
+| Resilienza operativa | DORA (Reg. UE 2022/2554) | `fsi-dora-compliance` |
+| Fiscalita' | IRES 24% + IRAP 3.9%, PEX art. 87 TUIR, art. 96 TUIR | `fsi-regime-fiscale-italia`, `fsi-returns-analysis-italy` |
+| Previdenza | Fondi pensione, TFR, PIR | `fsi-fondi-pensione-italia`, `fsi-pir-pianificazione` |
+
 ## Documentazione
 
 - [Architettura del sistema](docs/architecture.md)
@@ -288,7 +394,9 @@ Se Cowork non e' disponibile, puoi usare Claude Projects:
 - [Walkthrough demo](docs/demo_walkthrough.md)
 - [Valutazione progetto](docs/project_evaluation.md)
 
-## Formule chiave (Damodaran)
+## Formule chiave
+
+### Damodaran (US/internazionale)
 
 ```text
 FCFF  = EBIT(1-t) + Deprezzamento - CapEx - Delta WC
@@ -296,6 +404,18 @@ CAPM  = Rf + Beta * ERP + CRP
 WACC  = (E/V) * Re + (D/V) * Rd * (1-t)
 TV    = FCF * (1+g) / (r-g)
 BS    = V * N(d1) - K * e^(-rT) * N(d2)
+```
+
+### Parametri italiani (FSI Excel)
+
+```text
+Rf    = BTP 10Y (~4%)
+ERP   = 6-8% (include CRP Italia)
+t     = IRES 24% + IRAP 3.9% = 27.9%
+Rd    = Euribor 3M/6M + spread (250-450 bps)
+TV_g  = 1-2% (PIL nominale Eurozona)
+PEX   = 95% esenzione plusvalenze (art. 87 TUIR)
+ROL   = 30% limite deducibilita' interessi (art. 96 TUIR)
 ```
 
 ## Licenza
