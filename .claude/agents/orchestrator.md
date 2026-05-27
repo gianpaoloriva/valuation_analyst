@@ -45,6 +45,18 @@ Ogni agente invoca la skill corrispondente per il workflow dettagliato.
 16. **fsi-month-end-closer-italy** - Chiusura mensile (assestamento, TFR)
 17. **fsi-statement-auditor-italy** - Verifica estratti conto LP/NAV
 
+### Agenti Rating & Valuation (Python, PMI, credit risk forward-looking)
+Ogni agente invoca la skill corrispondente per il workflow dettagliato.
+
+| Agente | Skill invocata | Ruolo |
+|--------|---------------|-------|
+| **bms-analyst** | `bms-builder` | Bilancio Medio Standardizzato settoriale |
+| **dcf-validator** | `dcf-tv-coherence` | DCF 2/3 stadi + 7 check coerenza TV |
+| **agentic-credit-risk-simulator** | `agentic-credit-risk` | Monte Carlo PD/LGD/EL/UL |
+| **data-curator** | — | Validazione e curatela dataset CSV |
+| **backtest-analyst** | `backtest-comparator` | Confronto modelli credit risk |
+| **valuation-reporter** | — | Report narrativo italiano (stile AIAF) |
+
 ## Workflow di Orchestrazione
 
 ### Valutazione Standard (societa' quotata)
@@ -135,16 +147,49 @@ Per pitch completo con deck PowerPoint:
   Output: .xlsx + .pptx
 ```
 
+### Valutazione Rating & Valuation (PMI non quotate, credit risk)
+
+```
+Pipeline completa: bilancio riclassificato → BMS → DCF → Agentic Credit Risk → Rating.
+Dati in data/rating_valuation/ (CSV normalizzati).
+
+Step 1: Validazione dataset
+  [data-curator] → Schema check, invarianti, peer sample
+  GATE: "Dataset validato: X aziende, Y peer. Invarianti OK. Procedo?"
+
+Step 2: BMS settoriale
+  [bms-analyst] → Bilancio Medio Standardizzato
+  GATE: "BMS: N peer, EBITDA margin XX%, leva XX%. Procedo?"
+
+Step 3: Analisi differenziale
+  Target vs IMS — 4 driver (margine, crescita, leva, capital intensity)
+  GATE: "Target vs BMS: X/Y indicatori favorevoli. Procedo con DCF?"
+
+Step 4: DCF con Terminal Value coerente
+  [dcf-validator] → DCF 2/3 stadi + 7 check coerenza
+  GATE: "EV = EUR X M, Equity = EUR X M, TV peso XX%. Coerenza: [PASS/WARNING/ERROR]. Procedo?"
+
+Step 5: Agentic Credit Risk Monte Carlo
+  [agentic-credit-risk-simulator] → PD/LGD/EL/UL (20.000 trial, 3 anni)
+  GATE: "PD cumulata 3y = X.XX%, Rating: [rating]. EL = EUR X M. Genero report?"
+
+Step 6: Report
+  [valuation-reporter] → Nota di valutazione in italiano (stile AIAF)
+  Output: EV, Equity, PD, Rating, check coerenza, posizionamento vs settore
+```
+
 ## Scelta della Modalita'
 
-| Criterio | Damodaran | FSI Excel |
-|---------|-----------|-----------|
-| Output | Report markdown/PDF | Workbook .xlsx |
-| Calcoli | Python (automatizzati) | Formule Excel (interattive) |
-| Flusso | Batch: config → script → report | Step-by-step con review |
-| Compliance | Standard Damodaran | CONSOB, AGCM, MiFID II |
-| Ideale per | Analisi batch, confronti multi-ticker | Modelli interattivi, pitch |
-| Comando | `python scripts/run_analysis.py TICKER` | `/fsi-valuation TICKER.MI` |
+| Criterio | Damodaran | FSI Excel | Rating & Valuation |
+|---------|-----------|-----------|-------------------|
+| Output | Report markdown/PDF | Workbook .xlsx | Report Python + rating |
+| Calcoli | Python (automatizzati) | Formule Excel (interattive) | Python (Monte Carlo) |
+| Target | Quotate (dati mercato) | Quotate italiane | PMI non quotate |
+| Cash flow | FCFF/FCFE (Damodaran) | FCFF (IFRS) | Capital cash flow (Ruback) |
+| Credit risk | Non incluso | Non incluso | PD/LGD/EL/UL Monte Carlo |
+| Compliance | Standard Damodaran | CONSOB, AGCM, MiFID II | Paper accademici (AIAF, RAPD) |
+| Ideale per | Analisi batch quotate | Modelli interattivi, pitch | Comitato crediti, fairness opinion PMI |
+| Comando | `run_analysis.py TICKER` | `/fsi-valuation TICKER.MI` | `examples/rating_valuation/02_*.py` |
 
 ## Pesi Multi-Metodo per la Sintesi
 
