@@ -1,0 +1,92 @@
+{
+  "_doc": "Configurazione analisi ENEL S.p.A. - Borsa Italiana",
+
+  "ticker": "ENEL.MI",
+  "paese": "IT",
+  "modalita": "damodaran",
+  "erp": 0.07,
+  "rating_credito": "BBB+",
+  "crescita_alta": 0.05,
+  "crescita_stabile": 0.015,
+  "anni_alta": 5,
+  "anni_transizione": 5,
+
+  "comparabili": [
+    {
+      "ticker": "EDFP.PA", "nome": "EDF", "settore": "Utilities",
+      "market_cap": 55000, "pe_ratio": 10.5, "ev_ebitda": 5.8,
+      "pb_ratio": 1.1, "ev_sales": 0.9, "ev_ebit": null,
+      "margine_operativo": 0.12, "crescita_ricavi": 0.03, "paese": "FR"
+    },
+    {
+      "ticker": "IBE.MC", "nome": "Iberdrola", "settore": "Utilities",
+      "market_cap": 85000, "pe_ratio": 16.2, "ev_ebitda": 10.5,
+      "pb_ratio": 2.3, "ev_sales": 2.1, "ev_ebit": null,
+      "margine_operativo": 0.18, "crescita_ricavi": 0.06, "paese": "ES"
+    },
+    {
+      "ticker": "ENGI.PA", "nome": "Engie", "settore": "Utilities",
+      "market_cap": 40000, "pe_ratio": 9.8, "ev_ebitda": 5.2,
+      "pb_ratio": 1.0, "ev_sales": 0.6, "ev_ebit": null,
+      "margine_operativo": 0.10, "crescita_ricavi": 0.02, "paese": "FR"
+    },
+    {
+      "ticker": "A2A.MI", "nome": "A2A", "settore": "Utilities",
+      "market_cap": 6500, "pe_ratio": 11.0, "ev_ebitda": 6.0,
+      "pb_ratio": 1.5, "ev_sales": 0.5, "ev_ebit": null,
+      "margine_operativo": 0.08, "crescita_ricavi": 0.04, "paese": "IT"
+    },
+    {
+      "ticker": "ERG.MI", "nome": "ERG", "settore": "Utilities",
+      "market_cap": 3500, "pe_ratio": 22.0, "ev_ebitda": 9.0,
+      "pb_ratio": 2.0, "ev_sales": 3.0, "ev_ebit": null,
+      "margine_operativo": 0.25, "crescita_ricavi": 0.08, "paese": "IT"
+    }
+  ],
+
+  "sensitivity": {
+    "wacc_range": [0.06, 0.07, 0.075, 0.08, 0.085, 0.09, 0.10],
+    "growth_range": [0.005, 0.010, 0.015, 0.020, 0.025],
+    "crescita_range": [0.02, 0.03, 0.05, 0.07, 0.10],
+    "margine_range": [0.10, 0.12, 0.15, 0.18, 0.20]
+  },
+
+  "scenari": {
+    "upside_pct": 0.25,
+    "downside_pct": 0.20,
+    "prob_best": 0.20,
+    "prob_base": 0.55,
+    "prob_worst": 0.25,
+    "desc_best": "Accelerazione transizione energetica in Europa, crescita rinnovabili sopra attese, riduzione costo del debito",
+    "desc_base": "Crescita moderata in linea con piano industriale, margini stabili, riduzione graduale debito",
+    "desc_worst": "Ritardi investimenti rinnovabili, aumento costo del debito, rallentamento PIL Eurozona"
+  },
+
+  "monte_carlo": {
+    "wacc_std": 0.008,
+    "crescita_alta_std": 0.02
+  },
+
+  "rischi_rialzo": [
+    "Accelerazione piano transizione energetica europea (REPowerEU)",
+    "Riduzione costo del debito con normalizzazione politica monetaria BCE",
+    "Crescita rinnovabili in America Latina sopra attese",
+    "Cessione asset non-core con multipli elevati"
+  ],
+  "rischi_ribasso": [
+    "Rischio regolatorio su tariffe e concessioni in Italia",
+    "Aumento costo delle materie prime (gas naturale, componenti rinnovabili)",
+    "Rischio paese in America Latina (Brasile, Colombia, Cile)",
+    "Ritardi autorizzativi per nuovi impianti rinnovabili",
+    "Aumento tassi BCE con impatto su costo del debito elevato"
+  ],
+
+  "fondamentali_fallback": {
+    "_doc": "Dati indicativi ENEL 2024. Valori in milioni EUR.",
+    "ricavi": 82000.0, "ebit": 9500.0, "ebitda": 22500.0,
+    "utile_netto": 7100.0, "total_debt": 60000.0,
+    "cash": 8000.0, "book_value_equity": 38000.0,
+    "capex": 13000.0, "deprezzamento": 8500.0, "delta_wc": 500.0,
+    "tax_rate": 0.279, "beta_levered": 0.85
+  }
+}

@@ -17,10 +17,22 @@ Prepara il file di configurazione JSON per analizzare un nuovo ticker.
 
 ## Workflow
 
-### 1. Crea il config JSON
+### 1. Rileva il contesto geografico e crea il config JSON
 
+Rileva automaticamente se il ticker e' italiano/europeo:
+- Suffisso `.MI` (Milano), `.BIT` (Borsa Italiana) -> societa' italiana
+- Ticker come `ENEL`, `ISP`, `UCG`, `ENI`, `STM` senza suffisso -> chiedi conferma
+
+**Se societa' italiana/europea (`paese: "IT"`):**
+- Copia `configs/_template_italia.json` in `configs/{TICKER}.json`
+- Defaults: ERP 7%, crescita stabile 1.5%, tax rate 27.9% (IRES+IRAP), BTP 10Y
+- Proponi anche la modalita' FSI Excel: `/fsi-valuation {TICKER}` per modelli Excel
+
+**Se societa' US/internazionale:**
 - Copia `configs/_template.json` in `configs/{TICKER}.json`
-- Imposta il campo `ticker` con il valore corretto
+- Defaults standard Damodaran
+
+Imposta il campo `ticker` con il valore corretto.
 
 ### 2. Chiedi all'utente i parametri chiave
 
@@ -29,11 +41,11 @@ Chiedi all'utente (o ricerca autonomamente) i seguenti parametri:
 **Obbligatori:**
 - Rating credito (es. "AA+", "BBB", "BB")
 - Tasso di crescita alta (fase 1 del DCF)
-- Tasso di crescita stabile (fase terminale, tipicamente 2-3%)
+- Tasso di crescita stabile (fase terminale, tipicamente 2-3% US, 1-2% Italia)
 - Lista di 5-7 societa' comparabili con i loro multipli
 
 **Opzionali (hanno default ragionevoli):**
-- ERP (default 5.5% per US)
+- ERP (default 5.5% per US, 7% per Italia)
 - Anni alta crescita (default 5)
 - Anni transizione (default 5)
 - Range sensitivity, scenari, Monte Carlo
@@ -63,4 +75,5 @@ Chiedi o suggerisci:
 
 - **MAI creare script .py ad-hoc** per l'analisi. Usare SEMPRE run_analysis.py
 - Il config e' lo **step zero** prima di qualsiasi analisi
-- Tutti i config usano lo stesso schema (vedi `configs/_template.json`)
+- Due template disponibili: `configs/_template.json` (US/internazionale) e `configs/_template_italia.json` (Italia/Europa)
+- Per modelli Excel interattivi con compliance normativa italiana, usare `/fsi-valuation`
