@@ -108,16 +108,127 @@ python scripts/md_to_pdf.py NVDA
 
 ### Flow FSI Excel (interattivo)
 
-Per modelli Excel di qualita' istituzionale con formule vive e compliance normativa italiana:
+**Cosa NON e':** non e' uno script Python che esporta un `.xlsx`. Non esiste un comando shell tipo `run_analysis.py` per la modalita' FSI.
 
-```bash
+**Cos'e':** e' un workflow conversazionale in cui **Claude stesso costruisce il workbook Excel cella per cella**, in modo interattivo, fermandosi a checkpoint per farsi validare ogni fase. Il risultato e' un modello Excel con **formule vive** che ricalcola da solo quando modifichi un'assunzione.
+
+#### Due ambienti di esecuzione
+
+| Ambiente | Quando si attiva | Come Claude scrive le celle |
+| --- | --- | --- |
+| **Office JS (Add-in)** | Sei dentro Excel con l'Add-in Claude collegato | Scrittura diretta nel workbook aperto, ricalcolo nativo Excel |
+| **Python / openpyxl** | Sessione standard (es. Claude Code, claude.ai) | Genera file `.xlsx` su disco, ricalcolo via `recalc.py` prima della consegna |
+
+In entrambi i casi i principi sono identici: formule sopra valori fissi, commenti cella con fonte, sensitivity table 5x5 con celle centrali = caso base.
+
+#### Step 1: invocazione
+
+Scegli il tipo di modello che ti serve:
+
+```text
 /fsi-valuation ENEL.MI                  # DCF Excel (default)
-/fsi-valuation ENEL.MI --tipo lbo       # LBO model
-/fsi-valuation ENEL.MI --tipo comps     # Trading comps
-/fsi-valuation ENEL.MI --tipo pitch     # Pitch completo (Excel + deck)
+/fsi-valuation ENEL.MI --tipo dcf       # DCF esplicito
+/fsi-valuation ENEL.MI --tipo lbo       # LBO model (Sources & Uses, debt schedule, returns)
+/fsi-valuation ENEL.MI --tipo comps     # Trading comparables (Borsa Italiana / Euronext)
+/fsi-valuation ENEL.MI --tipo pitch     # Pitch completo: workbook Excel + deck PowerPoint
 ```
 
-Claude costruisce il modello step-by-step, verificando ogni fase con l'utente (input -> proiezioni -> WACC -> DCF -> sensitivity). Output: file `.xlsx` con formule vive in EUR.
+Queste sono **invocazioni di skill**, non comandi shell — vanno digitate nella conversazione con Claude.
+
+#### Step 2: identificazione target e raccolta dati
+
+Claude ti chiede ticker/ISIN e tipo di modello, poi recupera i dati seguendo questa priorita':
+
+1. **MCP servers** (CapIQ, Daloopa, Refinitiv) se configurati nell'ambiente
+2. **Dati forniti da te** (bilanci, stime, management guidance)
+3. **Ricerca web pubblica** (CONSOB, Borsa Italiana, bilanci IFRS) come fallback
+
+Per societa' italiane si usano bilanci IFRS consolidati (non US GAAP), fonti CONSOB/Borsa Italiana/Bureau van Dijk (non SEC EDGAR).
+
+#### Step 3: costruzione interattiva con checkpoint
+
+Claude **non costruisce il modello end-to-end**. Si ferma a ogni fase e ti chiede di confermare:
+
+```text
+Fase 1: INPUT GREZZI
+  Mostra: ricavi storici, margini, azioni, posizione finanziaria netta
+  Checkpoint: "Confermi gli input prima di proiettare?"
+
+Fase 2: PROIEZIONI RICAVI
+  Mostra: top line proiettato, tassi di crescita anno per anno
+  Checkpoint: "Confermi la curva di crescita prima di costruire i margini?"
+
+Fase 3: BUILD FCF
+  Mostra: prospetto FCF completo (EBIT, tax, D&A, CapEx, Delta WC)
+  Checkpoint: "Confermi la logica FCF prima del WACC?"
+
+Fase 4: WACC (parametri italiani)
+  Mostra: Rf=BTP 10Y, ERP=6-8%, Beta, Costo debito=Euribor+spread, IRES+IRAP=27.9%
+  Checkpoint: "Confermi il WACC prima dello sconto?"
+
+Fase 5: TERMINAL VALUE + EQUITY BRIDGE
+  Mostra: TV, PV cash flow, EV -> equity value -> prezzo per azione
+  Checkpoint: "Confermi prima delle sensitivity table?"
+
+Fase 6: SENSITIVITY TABLES + AUDIT
+  Costruisce: 3 tabelle 5x5 (WACC vs g, crescita vs margine, etc.)
+  Esegue: fsi-audit-xls-italy (controllo formule, balance check, errori)
+  Consegna: file .xlsx finale
+```
+
+Ogni checkpoint serve a intercettare errori prima che si propaghino — una proiezione di margine sbagliata scoperta dopo le sensitivity costringe a rifare tutto a valle.
+
+#### Step 4: check regolamentari (solo M&A / pitch)
+
+Se il `--tipo` e' `pitch` o si tratta di un'operazione M&A, Claude esegue automaticamente i check di compliance:
+
+- **AGCM** — soglie concentrazione (fatturato aggregato >532M EUR, target >32M EUR)
+- **Golden Power** — verifica settori strategici (D.L. 21/2012: energia, telco, difesa, infrastrutture critiche, banche)
+- **CONSOB** — comunicazioni obbligatorie per target quotate (OPA, comunicati price-sensitive)
+
+#### Step 5: consegna
+
+Output:
+
+- **DCF / LBO / 3-statement / comps** — un file `.xlsx` con formule vive in EUR
+- **Pitch** — file `.xlsx` + file `.pptx` (deck con executive summary, valuation football field, analisi competitiva)
+
+Puoi aprire il workbook in Excel/Google Sheets, modificare qualsiasi assunzione (crescita, margini, WACC, terminal g) e tutto il modello ricalcola in tempo reale grazie alle formule vive.
+
+#### Perche' "formule vive" e' la differenza chiave
+
+| | Modello con valori hardcoded | Modello FSI con formule vive |
+| --- | --- | --- |
+| `D20` (ricavo anno 1) | `1.234.567` | `=D19*(1+$B$8)` |
+| Cambi crescita in `B8` | Niente succede, devi rifare i calcoli | L'intero modello si aggiorna istantaneamente |
+| Sensitivity 5x5 | 25 numeri statici | 25 formule che ricalcolano DCF completo |
+| Audit / review | Difficile capire da dove viene un numero | Click su cella -> vedi formula e fonte |
+
+Tutti gli input grezzi (numeri blu) hanno commenti cella con fonte e data, cosi' il modello e' audit-friendly.
+
+#### Parametri italiani di default (FSI Excel)
+
+| Parametro | Valore | Fonte |
+| --- | --- | --- |
+| Risk-free rate | BTP 10Y (~4%) | Banca d'Italia |
+| ERP | 6-8% | Damodaran + CRP Italia |
+| Costo debito base | Euribor 3M/6M + spread (250-450 bps) | BCE |
+| Aliquota fiscale | IRES 24% + IRAP 3.9% = 27.9% | D.P.R. 917/1986 + D.Lgs. 446/1997 |
+| Terminal growth | 1-2% | PIL nominale Eurozona |
+| Leverage tipico LBO | 3-4.5x EBITDA | Mercato italiano |
+| DSO / DPO | 60-90 giorni | Prassi italiana |
+| Esenzione plusvalenze | PEX 95% (art. 87 TUIR) | TUIR |
+| Limite deducibilita' interessi | 30% del ROL (art. 96 TUIR) | TUIR |
+
+#### Quando usare FSI Excel vs Damodaran vs Rating & Valuation
+
+| Caso d'uso | Modalita' consigliata |
+| --- | --- |
+| Analisi quotata USA, report PDF/MD batch, riproducibile | **Damodaran** (`run_analysis.py`) |
+| Valutazione di una quotata italiana, voglio un Excel da modificare a mano | **FSI Excel** (`/fsi-valuation`) |
+| Pitch a comitato investimenti con Excel + deck | **FSI Excel** `--tipo pitch` |
+| LBO con Euribor, PEX exit, art. 96 TUIR | **FSI Excel** `--tipo lbo` |
+| PMI non quotata, credit risk forward-looking, rating implicito | **Rating & Valuation** |
 
 ### Flow Rating & Valuation (PMI, credit risk)
 
@@ -210,11 +321,17 @@ valuation_analyst/
     agents/                     8 agenti Damodaran + 10 agenti FSI Italy + 6 agenti Rating & Valuation
     skills/                     10 skill Damodaran + 59 skill FSI Italy + 7 skill Rating & Valuation
     commands/                   Comandi slash (/status, /demo)
-  tests/                        348 test (165 valuation_analyst + 183 rating_valuation)
-  demos/                        8 script demo Damodaran con dati di esempio
-  examples/rating_valuation/    2 esempi pipeline Rating & Valuation
+  tests/                        348 test totali
+    unit/                       Unit test Damodaran
+    integration/                Integration test Damodaran
+    rating_valuation/           Test Rating & Valuation (183 test)
+  examples/
+    damodaran/                  8 script demo Damodaran (01-08)
+    rating_valuation/           2 esempi pipeline Rating & Valuation
   docs/
-    rating_valuation/           overview.md, TODO.md, 3 PDF paper originali
+    damodaran/                  Architettura, metodologia, agent guide, demo walkthrough
+    fsi_italy/                  Documentazione modalita' FSI Excel (indice skill)
+    rating_valuation/           overview.md, TODO.md, 3 PDF paper accademici
 ```
 
 ## Configurazione JSON
@@ -222,6 +339,7 @@ valuation_analyst/
 Il file `configs/{TICKER}.json` contiene solo i parametri che l'analista decide, non i dati di mercato (recuperati automaticamente da API).
 
 Due template disponibili:
+
 - `_template.json` - Societa' US/internazionali (ERP 5.5%, tax 25%, terminal growth 2.5%)
 - `_template_italia.json` - Societa' italiane/europee (ERP 7%, IRES+IRAP 27.9%, terminal growth 1.5%)
 
@@ -319,11 +437,11 @@ Lo script recupera i dati in due modi:
 | M&A | `/ma-valuation AAPL` | Solo M&A e sinergie |
 | Dati Damodaran | `/fetch-damodaran-data` | Aggiorna dataset settoriali |
 
-### Skill FSI Italy (58 skill, prefisso `fsi-`)
+### Skill FSI Italy (59 skill, prefisso `fsi-`)
 
 | Verticale | Skill (n.) | Esempi |
 | --- | --- | --- |
-| Financial Analysis | 13 | `fsi-dcf-model-italy`, `fsi-comps-analysis-italy`, `fsi-lbo-model-italy`, `fsi-3-statement-model-italy` |
+| Financial Analysis | 14 | `fsi-dcf-model-italy`, `fsi-comps-analysis-italy`, `fsi-lbo-model-italy`, `fsi-3-statement-model-italy` |
 | Equity Research | 9 | `fsi-initiating-coverage-italy`, `fsi-earnings-analysis-italy`, `fsi-sector-overview-italy` |
 | Investment Banking | 10 | `fsi-golden-power-check`, `fsi-merger-model-italy`, `fsi-buyer-list-italy`, `fsi-process-letter-italy` |
 | Private Equity | 10 | `fsi-returns-analysis-italy`, `fsi-dd-checklist-italy`, `fsi-ic-memo-italy` |
@@ -384,17 +502,17 @@ Entry point: `/fsi-valuation ENEL.MI` per avviare il workflow FSI Excel.
 
 ## Demo
 
-8 script nella cartella `demos/` dimostrano ogni funzionalita' con dati di esempio (nessuna API richiesta):
+8 script nella cartella `examples/damodaran/` dimostrano ogni funzionalita' con dati di esempio (nessuna API richiesta):
 
 ```bash
-python demos/01_cost_of_capital.py      # WACC e CAPM
-python demos/02_dcf_valuation.py        # DCF FCFF/FCFE multi-stage
-python demos/03_comparable_analysis.py  # Screening e multipli
-python demos/04_option_pricing.py       # Black-Scholes
-python demos/05_private_valuation.py    # Sconti illiquidita'
-python demos/06_ma_synergy.py           # Sinergie M&A
-python demos/07_sensitivity_analysis.py # Monte Carlo e scenari
-python demos/08_full_report.py          # Report completo
+python examples/damodaran/01_cost_of_capital.py      # WACC e CAPM
+python examples/damodaran/02_dcf_valuation.py        # DCF FCFF/FCFE multi-stage
+python examples/damodaran/03_comparable_analysis.py  # Screening e multipli
+python examples/damodaran/04_option_pricing.py       # Black-Scholes
+python examples/damodaran/05_private_valuation.py    # Sconti illiquidita'
+python examples/damodaran/06_ma_synergy.py           # Sinergie M&A
+python examples/damodaran/07_sensitivity_analysis.py # Monte Carlo e scenari
+python examples/damodaran/08_full_report.py          # Report completo
 
 # Rating & Valuation (PMI, credit risk)
 python examples/rating_valuation/01_bms_industrial_machinery.py    # BMS settoriale
@@ -456,7 +574,7 @@ Se Cowork non e' disponibile, puoi usare Claude Projects:
 
 1. Vai su claude.ai > Projects > New Project
 2. Nelle istruzioni di progetto, incolla il contenuto di `CLAUDE.md`
-3. Carica i file di riferimento: `configs/_template.json`, `docs/methodology.md`
+3. Carica i file di riferimento: `configs/_template.json`, `docs/damodaran/methodology.md`
 4. Condividi con il team (richiede piano Team o Enterprise)
 
 ## Compliance Normativa Italiana
@@ -478,20 +596,29 @@ Le skill FSI Italy includono verifiche e conformita' per:
 
 ## Documentazione
 
-- [Architettura del sistema](docs/architecture.md)
-- [Guida agli agenti](docs/agent_guide.md)
-- [Metodologia Damodaran](docs/methodology.md)
-- [Fonti dati](docs/data_sources.md)
-- [Walkthrough demo](docs/demo_walkthrough.md)
-- [Valutazione progetto](docs/project_evaluation.md)
-- [Rating & Valuation: quadro d'insieme](docs/rating_valuation/overview.md)
-- [Paper: BMS - Bilancio Medio Standardizzato (AIAF n.65)](docs/rating_valuation/2008%20n.-65%20Bilancio%20Madio%20Standard.pdf)
+### Damodaran (Python, report markdown/PDF)
+
+- [Architettura del sistema](docs/damodaran/architecture.md)
+- [Guida agli agenti](docs/damodaran/agent_guide.md)
+- [Metodologia Damodaran](docs/damodaran/methodology.md)
+- [Fonti dati](docs/damodaran/data_sources.md)
+- [Walkthrough demo](docs/damodaran/demo_walkthrough.md)
+- [Valutazione progetto](docs/damodaran/project_evaluation.md)
+
+### FSI Excel (Italia/Europa)
+
+- [Documentazione modalita' FSI Excel](docs/fsi_italy/README.md) (indice delle 59 skill `fsi-*`)
+
+### Rating & Valuation (PMI, credit risk)
+
+- [Quadro d'insieme](docs/rating_valuation/overview.md)
+- [Paper: BMS - Bilancio Medio Standardizzato (AIAF n.65)](docs/rating_valuation/2008%20n.-65%20Bilancio%20Medio%20Standard.pdf)
 - [Paper: Terminal Value coerente (AIAF n.66)](docs/rating_valuation/2008%20n.-66%20Calcolo%20del%20Terminal%20Value.pdf)
 - [Paper: Agentic Credit Risk (RAPD)](docs/rating_valuation/RAPD.pdf)
 
 ## Formule chiave
 
-### Damodaran (US/internazionale)
+### Formule Damodaran (US/internazionale)
 
 ```text
 FCFF  = EBIT(1-t) + Deprezzamento - CapEx - Delta WC
@@ -513,7 +640,7 @@ PEX   = 95% esenzione plusvalenze (art. 87 TUIR)
 ROL   = 30% limite deducibilita' interessi (art. 96 TUIR)
 ```
 
-### Rating & Valuation (PMI, credit risk)
+### Formule Rating & Valuation (PMI, credit risk)
 
 ```text
 CCF   = NOPAT - DELTA_NIC + tau * INT        (Capital Cash Flow, Ruback 2002)

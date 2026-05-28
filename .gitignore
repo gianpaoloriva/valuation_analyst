@@ -29,8 +29,7 @@ data/cache/*.xls
 data/cache/*.csv
 !data/cache/.gitkeep
 
-# Output generati (report)
-
+# Output generati (report) — tracciati per showcase/demo
 
 # Log operativi
 data/logs/*.log

@@ -14,7 +14,7 @@ cp .env.example .env
 ## Demo 01: Costo del Capitale
 
 ```bash
-python demos/01_cost_of_capital.py
+python examples/damodaran/01_cost_of_capital.py
 ```
 
 **Cosa fa**: Calcola il WACC per Apple Inc. usando:
@@ -29,7 +29,7 @@ python demos/01_cost_of_capital.py
 ## Demo 02: DCF Valuation
 
 ```bash
-python demos/02_dcf_valuation.py
+python examples/damodaran/02_dcf_valuation.py
 ```
 
 **Cosa fa**: Valutazione DCF FCFF di Apple con:
@@ -41,7 +41,7 @@ python demos/02_dcf_valuation.py
 ## Demo 03: Comparable Analysis
 
 ```bash
-python demos/03_comparable_analysis.py
+python examples/damodaran/03_comparable_analysis.py
 ```
 
 **Cosa fa**: Valutazione relativa usando:
@@ -53,7 +53,7 @@ python demos/03_comparable_analysis.py
 ## Demo 04: Option Pricing
 
 ```bash
-python demos/04_option_pricing.py
+python examples/damodaran/04_option_pricing.py
 ```
 
 **Cosa fa**: Valutazione dell'equity come opzione per un'azienda
@@ -62,7 +62,7 @@ ipotetica in distress con alto leverage.
 ## Demo 05: Private Valuation
 
 ```bash
-python demos/05_private_valuation.py
+python examples/damodaran/05_private_valuation.py
 ```
 
 **Cosa fa**: Valutazione di un'azienda manifatturiera privata
@@ -71,7 +71,7 @@ con sconto illiquidita' e premio di controllo.
 ## Demo 06: M&A Synergy
 
 ```bash
-python demos/06_ma_synergy.py
+python examples/damodaran/06_ma_synergy.py
 ```
 
 **Cosa fa**: Analisi di un'acquisizione tech-on-tech con
@@ -80,7 +80,7 @@ sinergie di costo, ricavo e finanziarie.
 ## Demo 07: Sensitivity Analysis
 
 ```bash
-python demos/07_sensitivity_analysis.py
+python examples/damodaran/07_sensitivity_analysis.py
 ```
 
 **Cosa fa**: Sensitivity WACC vs Growth + Monte Carlo per Apple DCF.
@@ -88,7 +88,7 @@ python demos/07_sensitivity_analysis.py
 ## Demo 08: Full Report
 
 ```bash
-python demos/08_full_report.py
+python examples/damodaran/08_full_report.py
 ```
 
 **Cosa fa**: Esegue WACC, DCF, multipli e sensitivity per Apple
@@ -98,7 +98,7 @@ e produce un report sintetico completo.
 
 ```bash
 # Tutte le demo in sequenza
-for f in demos/0*.py; do
+for f in examples/damodaran/0*.py; do
     echo "=== Esecuzione: $f ==="
     python "$f"
     echo ""

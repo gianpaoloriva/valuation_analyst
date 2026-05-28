@@ -115,4 +115,4 @@ L'approccio settoriale prevede:
 Il differenziale isola le peculiarita' (positive e negative) della target
 rispetto al settore e quantifica il loro peso sul valore.
 
-Riferimento: `docs/rating_valuation/2008 n.-65 Bilancio Madio Standard.pdf`
+Riferimento: `docs/rating_valuation/2008 n.-65 Bilancio Medio Standard.pdf`

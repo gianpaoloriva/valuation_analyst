@@ -63,10 +63,16 @@ valuation_analyst/
     agents/                     8 agenti Damodaran + 10 agenti FSI Italy + 6 agenti Rating & Valuation
     skills/                     10 skill Damodaran + 59 skill FSI Italy + 7 skill Rating & Valuation
     commands/                   Comandi slash (/status, /demo)
-  tests/                        348 test (165 valuation_analyst + 183 rating_valuation)
-  demos/                        8 script demo (01-08)
-  examples/rating_valuation/    2 esempi pipeline Rating & Valuation
+  tests/                        348 test
+    unit/                       Unit test Damodaran
+    integration/                Integration test Damodaran
+    rating_valuation/           Test Rating & Valuation (183 test)
+  examples/
+    damodaran/                  8 script demo Damodaran (01-08)
+    rating_valuation/           2 esempi pipeline Rating & Valuation
   docs/
+    damodaran/                  Architettura, metodologia, agent guide, demo walkthrough
+    fsi_italy/                  Documentazione modalita' FSI Excel
     rating_valuation/           overview.md, TODO.md, 3 PDF paper originali
 ```
 
@@ -195,11 +201,11 @@ Paper di riferimento: `docs/rating_valuation/overview.md`
 
 ## Skill FSI Italy per Verticale
 
-Le 58 skill FSI Italy (prefisso `fsi-`) coprono 6 verticali:
+Le 59 skill FSI Italy (prefisso `fsi-`) coprono 6 verticali:
 
 | Verticale | Skills | Esempi |
 |-----------|--------|--------|
-| Financial Analysis | 13 | fsi-dcf-model-italy, fsi-comps-analysis-italy, fsi-lbo-model-italy |
+| Financial Analysis | 14 | fsi-dcf-model-italy, fsi-comps-analysis-italy, fsi-lbo-model-italy |
 | Equity Research | 9 | fsi-initiating-coverage-italy, fsi-earnings-analysis-italy |
 | Investment Banking | 10 | fsi-golden-power-check, fsi-merger-model-italy |
 | Private Equity | 10 | fsi-returns-analysis-italy, fsi-dd-checklist-italy |

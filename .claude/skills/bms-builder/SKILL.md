@@ -141,4 +141,4 @@ Vantaggi:
 3. L'analisi differenziale isola le peculiarita' della singola impresa
 4. Il BMS storico rivela trend e punti di flesso del settore
 
-Riferimento: `docs/rating_valuation/2008 n.-65 Bilancio Madio Standard.pdf`
+Riferimento: `docs/rating_valuation/2008 n.-65 Bilancio Medio Standard.pdf`

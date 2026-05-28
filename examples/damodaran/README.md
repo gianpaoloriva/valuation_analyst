@@ -12,12 +12,12 @@ pip install -e ".[dev]"
 
 Poi esegui qualsiasi demo:
 ```bash
-python demos/01_cost_of_capital.py
-python demos/02_dcf_valuation.py
-python demos/03_comparable_analysis.py
-python demos/04_option_pricing.py
-python demos/05_private_valuation.py
-python demos/06_ma_synergy.py
-python demos/07_sensitivity_analysis.py
-python demos/08_full_report.py
+python examples/damodaran/01_cost_of_capital.py
+python examples/damodaran/02_dcf_valuation.py
+python examples/damodaran/03_comparable_analysis.py
+python examples/damodaran/04_option_pricing.py
+python examples/damodaran/05_private_valuation.py
+python examples/damodaran/06_ma_synergy.py
+python examples/damodaran/07_sensitivity_analysis.py
+python examples/damodaran/08_full_report.py
 ```
