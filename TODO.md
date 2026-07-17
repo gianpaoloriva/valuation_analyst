@@ -2,7 +2,9 @@
 
 Tracker unificato delle funzionalità completate e delle correzioni fatte sul codice dopo l'audit del 2026-04-08 che ha confrontato linea per linea le formule implementate con i paper di riferimento.
 
-Ultimo aggiornamento: 2026-04-08 — tutte le voci P1-P4 dell'audit sono state risolte o marcate come "primitive disponibili". Test suite: **183 test passati in ~1s** (152 preesistenti + 31 nuovi).
+Ultimo aggiornamento: 2026-07-17 — allineamento di `credit_metrics.py` al repo gemello `rating_valuation/` (fix responsabilità limitata sulla LGD, vedi sezione *Credit metrics*). Test suite R&V: **188 test passati in ~1s** (183 + 5 guardie limited-liability). Documentazione WACC/credit risk consolidata in `docs/wacc_credit_risk_linee_guida.md` e `docs/nota_tecnica_credit_metrics_allineamento.md`.
+
+> **Nota:** questo file è ora alla **root del progetto** (spostato da `docs/rating_valuation/TODO.md` il 2026-07-17), a specchio della struttura del repo gemello `rating_valuation/TODO.md`. I due tracker vanno tenuti allineati (vedi sezione *Governance*).
 
 ---
 
@@ -95,6 +97,21 @@ Queste integrazioni sono follow-up e richiederanno test di regressione quantitat
 - [ ] Esporre i nuovi parametri opt-in (cash_yield, payout_ratio, debt_floor, tax_stochastic, collateral_coverage) nella pagina `4_Agentic_Credit_Risk.py` — oggi il simulator supporta tutto via API ma la UI non li espone.
 - [ ] Esporre `roic_marginal_decay_base` e `gdp_nominal_5y_avg` nella pagina `2_DCF_Valuation.py`.
 - [ ] Visualizzare il `coherence_report` integrato di `ThreeStageResult` direttamente sotto il risultato numerico.
+
+### Credit metrics — robustezza numerica
+
+- [x] **Allineamento `credit_metrics.py` al repo gemello — fix responsabilità limitata** (**2026-07-17**, portato da `rating_valuation/`; dettaglio in `docs/nota_tecnica_credit_metrics_allineamento.md`). Nei trial con EV simulato negativo la LGD superava l'EAD e il recovery rate esplodeva (LGD > EAD; milioni di percento sui trial con debito ≈ 0). Fix: responsabilità limitata nella cascata — `LGD = clip(EAD_unsecured − max(EV,0) − max(CASH,0), 0, EAD_unsecured)`, recovery calcolato solo sui default con EAD materiale (> 1 EUR). PD invariata per costruzione (il fix agisce a valle, solo su LGD/recovery). I due `credit_metrics.py` sono ora **byte-identici**. 5 test di regressione aggiunti (EV negativo, debito nullo, cash negativo, recovery ∈ [0,1], target distressed end-to-end).
+
+### Default anticipato (Punto 4 — sbloccato dall'allineamento)
+
+- [ ] Introdurre `default_buffer` in `compute_metrics` (default `0.0` = baseline): `ev < (debt − cash)·(1 + buffer)`. Da applicare **in entrambi i repo** mantenendoli allineati. Vedi `docs/wacc_credit_risk_linee_guida.md` → Fase 1 → Punto 4.
+- [ ] *(opzionale)* Soglia alternativa su coverage ratio `EBIT_t/INT_t < soglia` (richiede salvare `ebit_t` in matrice nel simulator).
+
+### Governance — allineamento con il repo gemello `rating_valuation/`
+
+- [ ] **Regola di allineamento:** ogni modifica a `src/rating_valuation/` va replicata nell'altro repo nella stessa PR (i due package sono copie; `credit_metrics.py` e `data_loader.py` sono già divergiti in passato).
+- [ ] Valutare l'unificazione dei due package `src/rating_valuation/` in una sorgente condivisa (submodule / package installabile / monorepo), per eliminare la duplicazione. Decisione architetturale — vedi `docs/nota_tecnica_credit_metrics_allineamento.md` §7.
+- [x] Documentazione WACC/credit risk consolidata: `docs/wacc_credit_risk_linee_guida.md` (contratto WACC + validazione dei 5 punti di Maurizio + checklist per fasi) e `docs/nota_tecnica_credit_metrics_allineamento.md` (diff puntuale del fix). Presenti identiche in entrambi i repo.
 
 ### Dati reali
 
