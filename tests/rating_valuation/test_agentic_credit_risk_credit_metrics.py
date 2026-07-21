@@ -177,3 +177,43 @@ def test_distressed_target_metrics_are_plausible():
     assert m.lgd_mean <= m.ead_mean + 1e-9
     assert 0.0 <= m.recovery_rate_mean <= 1.0
     assert m.expected_loss <= m.ead_mean + 1e-9
+
+
+# -----------------------------------------------------------------------------
+# Default anticipato — default_buffer (linee guida WACC/credit risk, Punto 4a)
+# -----------------------------------------------------------------------------
+
+
+def test_default_buffer_zero_is_baseline():
+    # Non-regression: buffer = 0 must reproduce eq. [13] exactly
+    rng = np.random.default_rng(7)
+    ev = rng.normal(50.0, 30.0, size=(500, 3))
+    debt = rng.uniform(0.0, 80.0, size=(500, 3))
+    cash = rng.uniform(0.0, 20.0, size=(500, 3))
+    base = compute_metrics(ev=ev, debt=debt, cash=cash)
+    buffered = compute_metrics(ev=ev, debt=debt, cash=cash, default_buffer=0.0)
+    np.testing.assert_array_equal(base.cumulative_pd, buffered.cumulative_pd)
+    np.testing.assert_array_equal(
+        base.yearly_default_frequency, buffered.yearly_default_frequency
+    )
+    assert base.lgd_mean == buffered.lgd_mean
+    assert base.n_default_scenarios == buffered.n_default_scenarios
+
+
+def test_default_buffer_anticipates_default_on_net_debt():
+    # EV above net debt but below net debt * (1 + buffer): default only with buffer
+    ev = np.array([[105.0]])
+    debt = np.array([[110.0]])
+    cash = np.array([[10.0]])  # net debt = 100
+    base = compute_metrics(ev=ev, debt=debt, cash=cash)
+    buffered = compute_metrics(ev=ev, debt=debt, cash=cash, default_buffer=0.10)
+    assert base.n_default_scenarios == 0
+    assert buffered.n_default_scenarios == 1
+
+
+def test_default_buffer_negative_raises():
+    ev = np.array([[1.0]])
+    debt = np.array([[1.0]])
+    cash = np.array([[0.0]])
+    with pytest.raises(ValueError, match="default_buffer"):
+        compute_metrics(ev=ev, debt=debt, cash=cash, default_buffer=-0.1)
